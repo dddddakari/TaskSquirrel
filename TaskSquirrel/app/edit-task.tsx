@@ -1,86 +1,112 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
-  Switch,
   TouchableOpacity,
+  Switch,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { saveTask, Task } from "../../utils/storage";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { getTaskById, Task, updateTask } from "../utils/storage";
 
-export default function AddTaskScreen() {
+export default function EditTaskScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ id?: string }>();
+
+  const [task, setTask] = useState<Task | null>(null);
   const [title, setTitle] = useState("");
   const [course, setCourse] = useState("");
   const [notes, setNotes] = useState("");
   const [reminder, setReminder] = useState(true);
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const loadTask = useCallback(async () => {
+    if (!params.id || typeof params.id !== "string") return;
+    setLoading(true);
+    const foundTask = await getTaskById(params.id);
+
+    if (foundTask) {
+      setTask(foundTask);
+      setTitle(foundTask.title);
+      setCourse(foundTask.course);
+      setNotes(foundTask.notes);
+      setReminder(foundTask.reminder);
+      setDate(new Date(foundTask.date));
+    }
+
+    setLoading(false);
+  }, [params.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTask();
+    }, [loadTask])
+  );
 
   const handleSave = async () => {
+    if (!task) return;
+
     if (!title.trim()) {
       Alert.alert("Error", "Task must have a title");
       return;
     }
 
-    const newTask: Task = {
-      id: Date.now().toString(),
+    const updatedTask: Task = {
+      ...task,
       title: title.trim(),
       course: course.trim(),
       notes: notes.trim(),
       reminder,
       date: date.toISOString().split("T")[0],
-      completed: false,
-      createdAt: new Date().toISOString(),
     };
 
-    try {
-      await saveTask(newTask);
-      Alert.alert("Success", "Task added successfully");
-      setTitle("");
-      setCourse("");
-      setNotes("");
-      setReminder(true);
-      setDate(new Date());
-      router.replace("/");
-    } catch (error) {
-      console.error("Failed to save task:", error);
-      Alert.alert("Error", "Failed to save task");
-    }
+    await updateTask(updatedTask);
+    router.replace({ pathname: "/task-details", params: { id: updatedTask.id } });
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#2c5aa0" />
+      </View>
+    );
+  }
+
+  if (!task) {
+    return (
+      <View style={styles.loaderContainer}>
+        <Text>Task not found.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Add Task</Text>
-        <Ionicons name="person-circle-outline" size={28} color="#fff" />
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>Edit Task</Text>
+        <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.form}>
         <Text style={styles.label}>Task Title</Text>
-        <TextInput
-          style={styles.input}
-          value={title}
-          onChangeText={setTitle}
-          placeholder="Enter task title"
-        />
+        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
         <Text style={styles.label}>Course</Text>
-        <TextInput
-          style={styles.input}
-          value={course}
-          onChangeText={setCourse}
-          placeholder="Enter course name"
-        />
+        <TextInput style={styles.input} value={course} onChangeText={setCourse} />
 
         <Text style={styles.label}>Due Date</Text>
         <TouchableOpacity style={styles.inputButton} onPress={() => setShowPicker(true)}>
-          <Text style={styles.inputButtonText}>{date.toDateString()}</Text>
+          <Text>{date.toDateString()}</Text>
         </TouchableOpacity>
 
         {showPicker && (
@@ -110,12 +136,11 @@ export default function AddTaskScreen() {
           value={notes}
           onChangeText={setNotes}
           multiline
-          placeholder="Add task notes"
           textAlignVertical="top"
         />
 
         <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>Save Task</Text>
+          <Text style={styles.buttonText}>Update Task</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -124,17 +149,18 @@ export default function AddTaskScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f2f2f2" },
+  loaderContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: {
     backgroundColor: "#2c5aa0",
     paddingHorizontal: 20,
     paddingTop: 22,
     paddingBottom: 18,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
   },
-  headerText: { color: "#fff", fontSize: 28, fontWeight: "700" },
-  form: { padding: 20, gap: 8 },
+  headerText: { color: "#fff", fontSize: 24, fontWeight: "700" },
+  form: { padding: 20 },
   label: { marginTop: 12, marginBottom: 6, fontSize: 16, fontWeight: "600" },
   input: {
     backgroundColor: "#fff",
@@ -153,7 +179,6 @@ const styles = StyleSheet.create({
     borderColor: "#d8d8d8",
     justifyContent: "center",
   },
-  inputButtonText: { color: "#111", fontSize: 15 },
   reminderRow: {
     marginTop: 18,
     flexDirection: "row",

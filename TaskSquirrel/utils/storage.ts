@@ -7,6 +7,7 @@ export type Task = {
   notes: string;
   reminder: boolean;
   date: string; // YYYY-MM-DD
+  time: string; // HH:MM (24h) or empty
   completed: boolean;
   createdAt: string;
 };
@@ -30,6 +31,7 @@ export const getTasks = async (): Promise<Task[]> => {
       reminder: task.reminder ?? false,
       date: task.date ?? "",
       completed: task.completed ?? false,
+      time: task.time ?? "",
       createdAt: task.createdAt ?? new Date().toISOString(),
     }));
 
@@ -62,6 +64,7 @@ export const addTask = async (
       notes: task.notes,
       reminder: task.reminder,
       date: task.date,
+      time: task.time,
       completed: false,
       createdAt: new Date().toISOString(),
     };

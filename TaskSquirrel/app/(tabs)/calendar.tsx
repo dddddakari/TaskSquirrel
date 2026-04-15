@@ -15,6 +15,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { getTasks, deleteTask, updateTask } from "../../utils/storage";
 import { useFocusEffect } from "expo-router";
@@ -36,6 +37,8 @@ export default function CalendarScreen() {
   const [editDate, setEditDate] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [editReminder, setEditReminder] = useState(false);
+  const [editTime, setEditTime] = useState("");
+  const [showEditTimePicker, setShowEditTimePicker] = useState(false);
 
   const loadTasks = async () => {
     try {
@@ -87,6 +90,7 @@ export default function CalendarScreen() {
     setEditDate(selectedTask?.date ?? "");
     setEditNotes(selectedTask?.notes ?? "");
     setEditReminder(selectedTask?.reminder ?? false);
+    setEditTime(selectedTask?.time ?? "");
     setIsEditing(true);
   };
 
@@ -102,6 +106,7 @@ export default function CalendarScreen() {
       date: editDate.trim(),
       notes: editNotes.trim(),
       reminder: editReminder,
+      time: editTime,
     };
     await updateTask(updated);
     setSelectedTask(updated);
@@ -158,7 +163,9 @@ export default function CalendarScreen() {
           ) : null}
         </View>
         <View style={{ alignItems: "flex-end" }}>
-          <Text style={styles.taskCardDate}>{item.date}</Text>
+          <Text style={styles.taskCardDate}>
+            {item.date}{item.time ? ` ${item.time}` : ""}
+          </Text>
           {item.reminder && (
             <Ionicons name="notifications" size={14} color={BLUE} style={{ marginTop: 4 }} />
           )}
@@ -296,6 +303,38 @@ export default function CalendarScreen() {
                     keyboardType="numeric"
                   />
                 )}
+                <Text style={styles.editLabel}>Due Time (optional)</Text>
+                {Platform.OS === "web" ? (
+                  <input
+                    type="time"
+                    value={editTime}
+                    onChange={(e: any) => setEditTime(e.target.value || "")}
+                    style={{
+                      height: 46, border: "1px solid #ccc", borderRadius: 6,
+                      paddingLeft: 12, marginBottom: 16, fontSize: 14,
+                      fontFamily: "inherit", width: "100%", boxSizing: "border-box",
+                    } as any}
+                  />
+                ) : (
+                  <>
+                    <TouchableOpacity style={styles.editInput} onPress={() => setShowEditTimePicker(true)}>
+                      <Text style={{ fontSize: 14, color: editTime ? "#222" : "#999" }}>
+                        {editTime || "No time set"}
+                      </Text>
+                    </TouchableOpacity>
+                    {showEditTimePicker && (
+                      <DateTimePicker
+                        value={editTime ? (() => { const [h, m] = editTime.split(":"); const d = new Date(); d.setHours(parseInt(h), parseInt(m)); return d; })() : new Date()}
+                        mode="time"
+                        display="default"
+                        onChange={(event, selected) => {
+                          setShowEditTimePicker(false);
+                          if (selected) setEditTime(selected.toTimeString().slice(0, 5));
+                        }}
+                      />
+                    )}
+                  </>
+                )}
                 <View style={styles.editReminderRow}>
                   <Ionicons name="notifications-outline" size={18} color="#222" />
                   <Text style={styles.editReminderLabel}>Reminder</Text>
@@ -334,6 +373,14 @@ export default function CalendarScreen() {
                   <Ionicons name="calendar-outline" size={18} color="#222" />
                   <Text style={styles.detailRowText}>{selectedTask?.date}</Text>
                 </View>
+
+                {/* Due Time */}
+                {selectedTask?.time ? (
+                  <View style={styles.detailRow}>
+                    <Ionicons name="time-outline" size={18} color="#222" />
+                    <Text style={styles.detailRowText}>{selectedTask.time}</Text>
+                  </View>
+                ) : null}
 
                 {/* Reminder */}
                 <View style={styles.detailRow}>

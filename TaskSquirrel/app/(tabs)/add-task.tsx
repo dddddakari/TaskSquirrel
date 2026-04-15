@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
-import { saveTask } from "../../utils/storage";
+import { addTask } from "../../utils/storage";
 import { useRouter } from "expo-router";
 
 // Web fallback for date input
@@ -34,6 +34,8 @@ export default function AddTaskScreen() {
   const [reminder, setReminder] = useState(true);
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [time, setTime] = useState<Date | null>(null);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const handleSave = async () => {
     if (!title) {
@@ -42,17 +44,16 @@ export default function AddTaskScreen() {
     }
 
     const newTask = {
-      id: Date.now().toString(),
-      title,
-      course,
-      notes,
+      title: title.trim(),
+      course: course.trim(),
+      notes: notes.trim(),
       reminder,
       date: date.toISOString().split("T")[0],
-      completed: false,
+      time: time ? time.toTimeString().slice(0, 5) : "",
     };
 
     try {
-      await saveTask(newTask);
+      await addTask(newTask);
       Alert.alert("Success", "Task added!", [
         { text: "OK", onPress: () => router.push("/calendar") },
       ]);
@@ -60,6 +61,7 @@ export default function AddTaskScreen() {
       setCourse("");
       setNotes("");
       setDate(new Date());
+      setTime(null);
     } catch (error) {
       Alert.alert("Error", "Failed to save task");
     }
@@ -127,6 +129,55 @@ export default function AddTaskScreen() {
                 onChange={(event, selected) => {
                   setShowPicker(false);
                   if (selected) setDate(selected);
+                }}
+              />
+            )}
+          </>
+        )}
+
+        <Text style={styles.label}>Due Time (optional)</Text>
+        {Platform.OS === "web" ? (
+          <input
+            type="time"
+            value={time ? time.toTimeString().slice(0, 5) : ""}
+            onChange={(e: any) => {
+              if (e.target.value) {
+                const [h, m] = e.target.value.split(":");
+                const d = new Date();
+                d.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+                setTime(d);
+              } else {
+                setTime(null);
+              }
+            }}
+            style={{
+              height: 46,
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 6,
+              paddingLeft: 12,
+              marginBottom: 16,
+              fontSize: 14,
+              fontFamily: "inherit",
+              width: "100%",
+              boxSizing: "border-box",
+            } as any}
+          />
+        ) : (
+          <>
+            <TouchableOpacity style={styles.input} onPress={() => setShowTimePicker(true)}>
+              <Text style={styles.dateText}>
+                {time ? time.toTimeString().slice(0, 5) : "No time set"}
+              </Text>
+            </TouchableOpacity>
+            {showTimePicker && (
+              <DateTimePicker
+                value={time || new Date()}
+                mode="time"
+                display="default"
+                onChange={(event, selected) => {
+                  setShowTimePicker(false);
+                  if (selected) setTime(selected);
                 }}
               />
             )}

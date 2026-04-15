@@ -51,16 +51,16 @@ export default function DashboardScreen() {
 
         <View style={styles.statsRow}>
           <View style={[styles.statBox, { backgroundColor: BLUE }]}>
-            <Text style={styles.statLabel}>Task Due Today:</Text>
+            <Text style={styles.statLabel}>Tasks Due Today:</Text>
             <Text style={styles.statValue}>{todayTasks.length}</Text>
           </View>
           <View style={[styles.statBox, { backgroundColor: GREEN }]}>
-            <Text style={styles.statLabel}>Upcoming Event:</Text>
+            <Text style={styles.statLabel}>Upcoming Events:</Text>
             <Text style={styles.statValue}>{upcomingTasks.length}</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Today Task</Text>
+        <Text style={styles.sectionTitle}>Today's Tasks</Text>
         {todayTasks.length > 0 ? (
           todayTasks.map((task) => (
             <TouchableOpacity key={task.id} onPress={() => handleToggleComplete(task)}>
@@ -84,7 +84,9 @@ export default function DashboardScreen() {
           upcomingTasks.map((task) => (
             <View key={task.id} style={styles.deadlineRow}>
               <Text style={styles.deadlineTitle}>{task.title}</Text>
-              <Text style={styles.deadlineDate}>{task.date}</Text>
+              <Text style={styles.deadlineDate}>
+                {task.date}{task.time ? ` at ${task.time}` : ""}
+              </Text>
             </View>
           ))
         ) : (

@@ -37,7 +37,9 @@ export default function CompleteScreen() {
       <View style={{ flex: 1 }}>
         <Text style={styles.taskTitle}>{item.title}</Text>
         {item.course ? <Text style={styles.taskCourse}>{item.course}</Text> : null}
-        <Text style={styles.taskDate}>{item.date}</Text>
+        <Text style={styles.taskDate}>
+          {item.date}{item.time ? ` at ${item.time}` : ""}
+        </Text>
       </View>
       <TouchableOpacity onPress={() => handleMarkIncomplete(item)}>
         <Ionicons name="checkmark-circle" size={26} color={GREEN} />

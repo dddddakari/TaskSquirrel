@@ -1,4 +1,21 @@
-﻿import React, { useState } from "react";
+﻿/**
+ * CalendarScreen — Monthly calendar view with task list + Task Details modal.
+ *
+ * Features:
+ *   1. Month calendar (react-native-calendars) with green dots on days that
+ *      have tasks. Tapping a day filters the list below to that date.
+ *   2. "Upcoming" task list — shows all incomplete tasks by default, or
+ *      tasks for a specific date when a day is selected.
+ *   3. Full-screen Task Details modal with two modes:
+ *        - View mode: shows title, course, date, time, reminder, notes,
+ *          plus Mark Complete / Edit / Delete buttons.
+ *        - Edit mode: inline form to update any field, including an
+ *          optional due time picker (platform-aware).
+ *
+ * Data is refreshed every time this tab gains focus via useFocusEffect.
+ */
+
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -20,37 +37,49 @@ import { Ionicons } from "@expo/vector-icons";
 import { getTasks, deleteTask, updateTask } from "../../utils/storage";
 import { useFocusEffect } from "expo-router";
 
+// App-wide brand colours
 const BLUE = "#2c5aa0";
 const GREEN = "#4a7c2f";
 const RED = "#cc2222";
 
 export default function CalendarScreen() {
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [markedDates, setMarkedDates] = useState<any>({});
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [filteredTasks, setFilteredTasks] = useState<any[]>([]);
-  const [selectedTask, setSelectedTask] = useState<any>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  // ── Task data state ───────────────────────────────────────────
+  const [tasks, setTasks] = useState<any[]>([]);               // All tasks from storage
+  const [markedDates, setMarkedDates] = useState<any>({});      // Calendar dot markers
+  const [selectedDate, setSelectedDate] = useState<string>(""); // Currently tapped day ("" = none)
+  const [filteredTasks, setFilteredTasks] = useState<any[]>([]); // Tasks shown in the list
+
+  // ── Task Details modal state ──────────────────────────────────
+  const [selectedTask, setSelectedTask] = useState<any>(null);  // Task being viewed/edited
+  const [modalVisible, setModalVisible] = useState(false);      // Whether the modal is open
+  const [isEditing, setIsEditing] = useState(false);            // View mode vs Edit mode
+
+  // ── Edit form fields (populated when user taps Edit) ──────────
   const [editTitle, setEditTitle] = useState("");
   const [editCourse, setEditCourse] = useState("");
   const [editDate, setEditDate] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [editReminder, setEditReminder] = useState(false);
-  const [editTime, setEditTime] = useState("");
-  const [showEditTimePicker, setShowEditTimePicker] = useState(false);
+  const [editTime, setEditTime] = useState("");                 // Due time in "HH:MM" or ""
+  const [showEditTimePicker, setShowEditTimePicker] = useState(false); // Native time picker toggle
 
+  /**
+   * Loads all tasks from storage, builds the calendar dot markers,
+   * and updates the filtered list (either for a selected date or all incomplete).
+   */
   const loadTasks = async () => {
     try {
       const data = await getTasks();
       setTasks(data);
 
+      // Build marker map: each date with a task gets a green dot
       const marks: any = {};
       data.forEach((task: any) => {
         marks[task.date] = { marked: true, dotColor: GREEN };
       });
       setMarkedDates(marks);
 
+      // If a day is selected, show only that day's tasks; otherwise show all incomplete
       if (selectedDate) {
         setFilteredTasks(data.filter((t: any) => t.date === selectedDate));
       } else {
@@ -61,29 +90,34 @@ export default function CalendarScreen() {
     }
   };
 
+  // Reload tasks every time this tab is focused
   useFocusEffect(
     React.useCallback(() => {
       loadTasks();
     }, [])
   );
 
+  /** When a calendar day is tapped, filter the task list to that date */
   const handleDayPress = (day: any) => {
     const dateStr = day.dateString;
     setSelectedDate(dateStr);
     setFilteredTasks(tasks.filter((t: any) => t.date === dateStr));
   };
 
+  /** Clears the date filter and shows all incomplete tasks again */
   const clearFilter = () => {
     setSelectedDate("");
     setFilteredTasks(tasks.filter((t: any) => !t.completed));
   };
 
+  /** Opens the Task Details modal in view mode for the tapped task */
   const handleTaskPress = (task: any) => {
     setSelectedTask(task);
     setIsEditing(false);
     setModalVisible(true);
   };
 
+  /** Populates edit fields from the selected task and switches to edit mode */
   const handleStartEdit = () => {
     setEditTitle(selectedTask?.title ?? "");
     setEditCourse(selectedTask?.course ?? "");
@@ -94,6 +128,7 @@ export default function CalendarScreen() {
     setIsEditing(true);
   };
 
+  /** Validates and saves the edited fields, then returns to view mode */
   const handleSaveEdit = async () => {
     if (!editTitle.trim()) {
       Alert.alert("Error", "Task title cannot be empty");
@@ -114,6 +149,7 @@ export default function CalendarScreen() {
     setIsEditing(false);
   };
 
+  /** Shows a confirmation dialog, then permanently deletes the task */
   const handleDeleteTask = async () => {
     Alert.alert(
       "Delete Task",
@@ -133,6 +169,7 @@ export default function CalendarScreen() {
     );
   };
 
+  /** Flips the task's completed status and refreshes the list */
   const handleToggleComplete = async () => {
     const updatedTask = { ...selectedTask, completed: !selectedTask.completed };
     await updateTask(updatedTask);
@@ -140,6 +177,7 @@ export default function CalendarScreen() {
     setSelectedTask(updatedTask);
   };
 
+  // Merge green-dot markers with the blue highlight for the selected day
   const computedMarkedDates = {
     ...markedDates,
     ...(selectedDate && {
@@ -151,6 +189,7 @@ export default function CalendarScreen() {
     }),
   };
 
+  /** Renders a single task card in the list below the calendar */
   const renderTaskItem = ({ item }: { item: any }) => (
     <TouchableOpacity onPress={() => handleTaskPress(item)}>
       <View style={[styles.taskCard, item.completed && styles.completedCard]}>
@@ -230,7 +269,7 @@ export default function CalendarScreen() {
         )}
       </ScrollView>
 
-      {/* Task Details Modal */}
+      {/* ── Task Details / Edit Modal ──────────────────────────────── */}
       <Modal
         animationType="slide"
         transparent={false}
@@ -267,6 +306,7 @@ export default function CalendarScreen() {
           <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView contentContainerStyle={styles.modalBody} keyboardShouldPersistTaps="handled">
             {isEditing ? (
+              {/* ── EDIT MODE: inline form ──────────────────────── */}
               <>
                 <Text style={styles.editLabel}>Task Title</Text>
                 <TextInput
@@ -360,6 +400,7 @@ export default function CalendarScreen() {
                 </TouchableOpacity>
               </>
             ) : (
+              {/* ── VIEW MODE: read-only detail display ────────── */}
               <>
                 {/* Title + Course */}
                 <Text style={styles.detailTaskTitle}>{selectedTask?.title}</Text>
@@ -422,8 +463,11 @@ export default function CalendarScreen() {
   );
 }
 
+// ── Styles ────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+
+  // Blue header bar
   header: {
     backgroundColor: BLUE,
     paddingTop: 50,
@@ -434,6 +478,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerText: { color: "#fff", fontSize: 18, fontWeight: "500" },
+  // Calendar widget wrapper with rounded border
   calendarBox: {
     backgroundColor: "#fff",
     margin: 12,
@@ -442,6 +487,7 @@ const styles = StyleSheet.create({
     borderColor: "#e0e0e0",
     overflow: "hidden",
   },
+  // Section header row ("Upcoming" / "Tasks for <date>" + "Show All" link)
   sectionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -452,6 +498,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: { fontSize: 16, fontWeight: "700", color: "#111" },
   clearBtn: { color: BLUE, fontSize: 13, fontWeight: "500" },
+  // Individual task card in the list
   taskCard: {
     flexDirection: "row",
     borderWidth: 1,
@@ -467,6 +514,7 @@ const styles = StyleSheet.create({
   completedText: { textDecorationLine: "line-through", color: "#999" },
   taskCardCourse: { fontSize: 12, color: "#666", marginTop: 2 },
   taskCardDate: { fontSize: 12, color: BLUE, fontWeight: "500" },
+  // Placeholder cards shown when the list is empty
   emptyCard: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -475,7 +523,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     minHeight: 54,
   },
-  // Modal styles
+  // ── Modal styles ──────────────────────────────────────────────
   modalContainer: { flex: 1, backgroundColor: "#fff" },
   modalHeader: {
     backgroundColor: BLUE,

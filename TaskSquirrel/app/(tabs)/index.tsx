@@ -18,6 +18,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getTasks, updateTask } from '../../utils/storage';
+import { getSettings } from '../../utils/settings-storage';
 import { useFocusEffect } from 'expo-router';
 
 // App-wide brand colours
@@ -27,11 +28,14 @@ const GREEN = '#4a7c2f';
 export default function DashboardScreen() {
   // All tasks loaded from storage
   const [tasks, setTasks] = useState<any[]>([]);
+  const [displayName, setDisplayName] = useState('CX');
 
-  /** Fetches the full task list from AsyncStorage */
+  /** Fetches the full task list and display name from AsyncStorage */
   const loadTasks = async () => {
     const data = await getTasks();
     setTasks(data);
+    const settings = await getSettings();
+    setDisplayName(settings.displayName);
   };
 
   // Reload tasks every time this tab is focused
@@ -72,7 +76,7 @@ export default function DashboardScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* ── Greeting ──────────────────────────────────────────── */}
-        <Text style={styles.greeting}>Hello, CX</Text>
+        <Text style={styles.greeting}>Hello, {displayName}</Text>
 
         {/* ── Stat boxes (Tasks Due Today / Upcoming Events) ───── */}
         <View style={styles.statsRow}>

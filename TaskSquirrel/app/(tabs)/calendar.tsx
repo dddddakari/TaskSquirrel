@@ -306,7 +306,6 @@ export default function CalendarScreen() {
           <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView contentContainerStyle={styles.modalBody} keyboardShouldPersistTaps="handled">
             {isEditing ? (
-              {/* ── EDIT MODE: inline form ──────────────────────── */}
               <>
                 <Text style={styles.editLabel}>Task Title</Text>
                 <TextInput
@@ -400,7 +399,6 @@ export default function CalendarScreen() {
                 </TouchableOpacity>
               </>
             ) : (
-              {/* ── VIEW MODE: read-only detail display ────────── */}
               <>
                 {/* Title + Course */}
                 <Text style={styles.detailTaskTitle}>{selectedTask?.title}</Text>

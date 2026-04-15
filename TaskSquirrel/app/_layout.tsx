@@ -19,6 +19,12 @@ export default function RootLayout() {
         <Stack.Screen name="task-details" options={{ headerShown: false }} />
         <Stack.Screen name="edit-task" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
+        <Stack.Screen name="settings-account" options={{ headerShown: false }} />
+        <Stack.Screen name="settings-notifications" options={{ headerShown: false }} />
+        <Stack.Screen name="settings-appearance" options={{ headerShown: false }} />
+        <Stack.Screen name="settings-privacy" options={{ headerShown: false }} />
+        <Stack.Screen name="settings-help" options={{ headerShown: false }} />
+        <Stack.Screen name="settings-about" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

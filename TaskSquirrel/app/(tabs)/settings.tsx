@@ -10,6 +10,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 // App-wide brand colour
 const BLUE = "#2c5aa0";
@@ -19,15 +20,17 @@ const BLUE = "#2c5aa0";
  * Each entry maps an Ionicons icon name to a human-readable label.
  */
 const settingsItems = [
-  { icon: "person-outline" as const, label: "Account" },
-  { icon: "notifications-outline" as const, label: "Notifications" },
-  { icon: "color-palette-outline" as const, label: "Appearance" },
-  { icon: "lock-closed-outline" as const, label: "Privacy" },
-  { icon: "help-circle-outline" as const, label: "Help & Support" },
-  { icon: "information-circle-outline" as const, label: "About" },
+  { icon: "person-outline" as const, label: "Account", route: "/settings-account" as const },
+  { icon: "notifications-outline" as const, label: "Notifications", route: "/settings-notifications" as const },
+  { icon: "color-palette-outline" as const, label: "Appearance", route: "/settings-appearance" as const },
+  { icon: "lock-closed-outline" as const, label: "Privacy", route: "/settings-privacy" as const },
+  { icon: "help-circle-outline" as const, label: "Help & Support", route: "/settings-help" as const },
+  { icon: "information-circle-outline" as const, label: "About", route: "/settings-about" as const },
 ];
 
 export default function SettingsScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       {/* ── Blue header bar ─────────────────────────────────── */}
@@ -39,12 +42,13 @@ export default function SettingsScreen() {
       {/* ── Settings menu list ─────────────────────────────── */}
       <View style={styles.list}>
         {settingsItems.map((item) => (
-          <TouchableOpacity key={item.label} style={styles.item}>
-            {/* Icon on the left */}
+          <TouchableOpacity
+            key={item.label}
+            style={styles.item}
+            onPress={() => router.push(item.route)}
+          >
             <Ionicons name={item.icon} size={22} color={BLUE} />
-            {/* Label fills remaining space */}
             <Text style={styles.itemLabel}>{item.label}</Text>
-            {/* Chevron hints that the row is tappable */}
             <Ionicons name="chevron-forward" size={18} color="#bbb" />
           </TouchableOpacity>
         ))}

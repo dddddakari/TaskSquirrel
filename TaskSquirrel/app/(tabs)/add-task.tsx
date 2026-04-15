@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { saveTask, Task } from "../../utils/storage";
+import { addTask, Task } from "../../utils/storage";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -28,19 +28,15 @@ export default function AddTaskScreen() {
       return;
     }
 
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: title.trim(),
-      course: course.trim(),
-      notes: notes.trim(),
-      reminder,
-      date: date.toISOString().split("T")[0],
-      completed: false,
-      createdAt: new Date().toISOString(),
-    };
-
     try {
-      await saveTask(newTask);
+      await addTask({
+        title: title.trim(),
+        course: course.trim(),
+        notes: notes.trim(),
+        reminder,
+        date: date.toISOString().split("T")[0],
+      });
+
       Alert.alert("Success", "Task added successfully");
       setTitle("");
       setCourse("");

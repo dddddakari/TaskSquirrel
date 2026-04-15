@@ -104,12 +104,7 @@ export default function DashboardScreen() {
             </TouchableOpacity>
           ))
         ) : (
-          // Empty placeholder rows when there are no tasks today
-          <>
-            <View style={styles.taskRow} />
-            <View style={styles.taskRow} />
-            <View style={styles.taskRow} />
-          </>
+          <Text style={styles.emptyText}>No tasks due today.</Text>
         )}
 
         {/* ── Upcoming Deadlines list ──────────────────────────── */}
@@ -125,11 +120,7 @@ export default function DashboardScreen() {
             </View>
           ))
         ) : (
-          // Empty placeholder rows when no upcoming deadlines exist
-          <>
-            <View style={styles.deadlineRow} />
-            <View style={styles.deadlineRow} />
-          </>
+          <Text style={styles.emptyText}>No upcoming deadlines.</Text>
         )}
       </ScrollView>
     </View>
@@ -194,4 +185,5 @@ const styles = StyleSheet.create({
   },
   deadlineTitle: { fontSize: 14, color: '#222' },
   deadlineDate: { fontSize: 12, color: '#666' },
+  emptyText: { textAlign: 'center', color: '#999', fontSize: 14, marginTop: 20, marginBottom: 40 },
 });

@@ -253,11 +253,7 @@ export default function CalendarScreen() {
         </View>
 
         {filteredTasks.length === 0 ? (
-          <>
-            <View style={styles.emptyCard} />
-            <View style={styles.emptyCard} />
-            <View style={styles.emptyCard} />
-          </>
+          <Text style={styles.emptyText}>No tasks to show.</Text>
         ) : (
           <FlatList
             data={filteredTasks}
@@ -512,15 +508,7 @@ const styles = StyleSheet.create({
   completedText: { textDecorationLine: "line-through", color: "#999" },
   taskCardCourse: { fontSize: 12, color: "#666", marginTop: 2 },
   taskCardDate: { fontSize: 12, color: BLUE, fontWeight: "500" },
-  // Placeholder cards shown when the list is empty
-  emptyCard: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginHorizontal: 16,
-    marginBottom: 10,
-    minHeight: 54,
-  },
+  emptyText: { textAlign: "center", color: "#999", fontSize: 14, marginTop: 20, marginBottom: 20 },
   // ── Modal styles ──────────────────────────────────────────────
   modalContainer: { flex: 1, backgroundColor: "#fff" },
   modalHeader: {

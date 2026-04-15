@@ -6,11 +6,25 @@ import {
   TextInput,
   Switch,
   TouchableOpacity,
+  ScrollView,
   Alert,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Ionicons } from "@expo/vector-icons";
 import { saveTask } from "../../utils/storage";
 import { useRouter } from "expo-router";
+
+// Web fallback for date input
+const WebDateInput =
+  Platform.OS === "web"
+    ? require("react-native-web").TextInput
+    : null;
+
+const BLUE = "#2c5aa0";
+const GREEN = "#4a7c2f";
 
 export default function AddTaskScreen() {
   const router = useRouter();
@@ -18,7 +32,6 @@ export default function AddTaskScreen() {
   const [course, setCourse] = useState("");
   const [notes, setNotes] = useState("");
   const [reminder, setReminder] = useState(true);
-
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
 
@@ -34,144 +47,171 @@ export default function AddTaskScreen() {
       course,
       notes,
       reminder,
-      date: date.toISOString().split("T")[0], // YYYY-MM-DD
+      date: date.toISOString().split("T")[0],
+      completed: false,
     };
 
     try {
       await saveTask(newTask);
-      console.log("Task saved:", newTask);
-      Alert.alert("Success", "Task added!");
-      router.push('/calendar');
+      Alert.alert("Success", "Task added!", [
+        { text: "OK", onPress: () => router.push("/calendar") },
+      ]);
+      setTitle("");
+      setCourse("");
+      setNotes("");
+      setDate(new Date());
     } catch (error) {
-      console.error("Failed to save task:", error);
       Alert.alert("Error", "Failed to save task");
     }
-
-    // reset form
-    setTitle("");
-    setCourse("");
-    setNotes("");
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Add Task</Text>
+        <Ionicons name="person-circle-outline" size={28} color="#fff" />
       </View>
 
-      <View style={styles.form}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
         <Text style={styles.label}>Task Title</Text>
-        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+        <TextInput
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Enter task title"
+          placeholderTextColor="#bbb"
+        />
 
         <Text style={styles.label}>Course</Text>
-        <TextInput style={styles.input} value={course} onChangeText={setCourse} />
-
-        {/* DATE PICKER */}
-        <Text style={styles.label}>Due Date</Text>
-        <TouchableOpacity
+        <TextInput
           style={styles.input}
-          onPress={() => setShowPicker(true)}
-        >
-          <Text>{date.toDateString()}</Text>
-        </TouchableOpacity>
+          value={course}
+          onChangeText={setCourse}
+          placeholder="Enter course name"
+          placeholderTextColor="#bbb"
+        />
 
-        {showPicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            onChange={(event, selectedDate) => {
-              setShowPicker(false);
-              if (selectedDate) setDate(selectedDate);
+        <Text style={styles.label}>Due Date</Text>
+        {Platform.OS === "web" ? (
+          <input
+            type="date"
+            value={date.toISOString().split("T")[0]}
+            onChange={(e: any) => {
+              const d = new Date(e.target.value + "T00:00:00");
+              if (!isNaN(d.getTime())) setDate(d);
             }}
+            style={{
+              height: 46,
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 6,
+              paddingLeft: 12,
+              marginBottom: 16,
+              fontSize: 14,
+              fontFamily: "inherit",
+              width: "100%",
+              boxSizing: "border-box",
+            } as any}
           />
+        ) : (
+          <>
+            <TouchableOpacity style={styles.input} onPress={() => setShowPicker(true)}>
+              <Text style={styles.dateText}>{date.toISOString().split("T")[0]}</Text>
+            </TouchableOpacity>
+            {showPicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={(event, selected) => {
+                  setShowPicker(false);
+                  if (selected) setDate(selected);
+                }}
+              />
+            )}
+          </>
         )}
 
-        {/* Reminder */}
-        <View style={styles.row}>
-          <Text style={styles.label}>Reminder</Text>
-          <Switch value={reminder} onValueChange={setReminder} />
+        <View style={styles.reminderRow}>
+          <Ionicons name="notifications-outline" size={20} color="#222" />
+          <Text style={styles.reminderLabel}>Reminder</Text>
+          <Switch
+            value={reminder}
+            onValueChange={setReminder}
+            trackColor={{ false: "#ccc", true: GREEN }}
+            thumbColor="#fff"
+          />
         </View>
+        <View style={styles.divider} />
 
         <Text style={styles.label}>Notes</Text>
         <TextInput
-          style={styles.notes}
+          style={styles.notesInput}
           value={notes}
           onChangeText={setNotes}
           multiline
+          placeholder="Add notes..."
+          placeholderTextColor="#bbb"
+          textAlignVertical="top"
         />
 
-        
-
-        <TouchableOpacity style={styles.button} onPress={handleSave}>
-          <Text style={styles.buttonText}>Save Task</Text>
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+          <Text style={styles.saveBtnText}>Save Task</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
+      </TouchableWithoutFeedback>
     </View>
   );
 }
 
-
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f2f2f2",
-  },
-
+  container: { flex: 1, backgroundColor: "#fff" },
   header: {
-    backgroundColor: "#2c5aa0",
-    padding: 15,
-    alignItems: "center",
-  },
-
-  headerText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  form: {
-    padding: 15,
-  },
-
-  label: {
-    marginBottom: 5,
-    fontWeight: "500",
-  },
-
-  input: {
-    backgroundColor: "#fff",
-    height: 45,
-    borderRadius: 6,
-    marginBottom: 15,
-    paddingHorizontal: 10,
-  },
-
-  notes: {
-    backgroundColor: "#fff",
-    height: 100,
-    borderRadius: 6,
-    marginBottom: 20,
-    padding: 10,
-    textAlignVertical: "top",
-  },
-
-  row: {
+    backgroundColor: BLUE,
+    paddingTop: 50,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 15,
   },
-
-  button: {
-    backgroundColor: "#5e8f3a",
-    padding: 15,
+  headerText: { color: "#fff", fontSize: 18, fontWeight: "500" },
+  form: { padding: 20, paddingBottom: 40 },
+  label: { fontSize: 14, fontWeight: "600", color: "#111", marginBottom: 6, marginTop: 4 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
     borderRadius: 6,
+    height: 46,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
+  dateText: { fontSize: 14, color: "#222" },
+  reminderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  reminderLabel: { flex: 1, fontSize: 14, fontWeight: "600", color: "#111", marginLeft: 8 },
+  divider: { height: 1, backgroundColor: "#e0e0e0", marginBottom: 16 },
+  notesInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
+    height: 120,
+    padding: 12,
+    marginBottom: 24,
+    fontSize: 14,
+  },
+  saveBtn: {
+    backgroundColor: GREEN,
+    borderRadius: 8,
+    padding: 16,
     alignItems: "center",
   },
-
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
+  saveBtnText: { color: "#fff", fontWeight: "600", fontSize: 16 },
 });

@@ -10,11 +10,13 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting, AppSettings } from "../utils/settings-storage";
+import { useTheme } from "../utils/theme-context";
 
 const BLUE = "#2c5aa0";
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   useFocusEffect(
@@ -31,8 +33,8 @@ export default function NotificationsScreen() {
   if (!settings) return null;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -41,10 +43,10 @@ export default function NotificationsScreen() {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.row}>
+        <View style={[styles.row, { borderBottomColor: colors.borderLighter }]}>
           <View style={styles.rowLeft}>
             <Ionicons name="notifications-outline" size={22} color={BLUE} />
-            <Text style={styles.rowLabel}>Push Notifications</Text>
+            <Text style={[styles.rowLabel, { color: colors.text }]}>Push Notifications</Text>
           </View>
           <Switch
             value={settings.notificationsEnabled}
@@ -53,10 +55,10 @@ export default function NotificationsScreen() {
           />
         </View>
 
-        <View style={styles.row}>
+        <View style={[styles.row, { borderBottomColor: colors.borderLighter }]}>
           <View style={styles.rowLeft}>
             <Ionicons name="alarm-outline" size={22} color={BLUE} />
-            <Text style={styles.rowLabel}>Task Reminders</Text>
+            <Text style={[styles.rowLabel, { color: colors.text }]}>Task Reminders</Text>
           </View>
           <Switch
             value={settings.notificationsEnabled}
@@ -65,18 +67,19 @@ export default function NotificationsScreen() {
           />
         </View>
 
-        <Text style={styles.hint}>
+        <Text style={[styles.hint, { color: colors.textMuted }]}>
           When enabled, you'll receive reminders before tasks are due.
         </Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Reminder Time</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Reminder Time</Text>
           <View style={styles.timeRow}>
             {["07:00", "09:00", "12:00", "18:00"].map((time) => (
               <TouchableOpacity
                 key={time}
                 style={[
                   styles.timeChip,
+                  { backgroundColor: colors.chipBg, borderColor: colors.chipBorder },
                   settings.reminderTime === time && styles.timeChipActive,
                 ]}
                 onPress={async () => {
@@ -87,6 +90,7 @@ export default function NotificationsScreen() {
                 <Text
                   style={[
                     styles.timeChipText,
+                    { color: colors.chipText },
                     settings.reminderTime === time && styles.timeChipTextActive,
                   ]}
                 >
@@ -95,7 +99,7 @@ export default function NotificationsScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={styles.hint}>
+          <Text style={[styles.hint, { color: colors.textMuted }]}>
             Daily reminder will be sent at this time for upcoming tasks.
           </Text>
         </View>

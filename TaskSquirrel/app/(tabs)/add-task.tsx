@@ -30,6 +30,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { addTask } from "../../utils/storage";
+import { useTheme } from "../../utils/theme-context";
 import { useRouter } from "expo-router";
 
 // Web fallback — only loaded when running on web to avoid native crash
@@ -44,6 +45,7 @@ const GREEN = "#4a7c2f";
 
 export default function AddTaskScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   // ── Form state ──────────────────────────────────────────────
   const [title, setTitle] = useState("");          // Required task name
@@ -93,9 +95,9 @@ export default function AddTaskScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       {/* ── Blue header bar ─────────────────────────────────────── */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <Text style={styles.headerText}>Add Task</Text>
         <Ionicons name="person-circle-outline" size={28} color="#fff" />
       </View>
@@ -105,27 +107,27 @@ export default function AddTaskScreen() {
       <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
 
         {/* ── Task Title ──────────────────────────────────────── */}
-        <Text style={styles.label}>Task Title</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Task Title</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
           value={title}
           onChangeText={setTitle}
           placeholder="Enter task title"
-          placeholderTextColor="#bbb"
+          placeholderTextColor={colors.textMuted}
         />
 
         {/* ── Course ──────────────────────────────────────────── */}
-        <Text style={styles.label}>Course</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Course</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
           value={course}
           onChangeText={setCourse}
           placeholder="Enter course name"
-          placeholderTextColor="#bbb"
+          placeholderTextColor={colors.textMuted}
         />
 
         {/* ── Due Date ────────────────────────────────────────── */}
-        <Text style={styles.label}>Due Date</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Due Date</Text>
         {Platform.OS === "web" ? (
           /* Web: native HTML date input */
           <input
@@ -151,8 +153,8 @@ export default function AddTaskScreen() {
         ) : (
           /* Mobile: tap to reveal DateTimePicker */
           <>
-            <TouchableOpacity style={styles.input} onPress={() => setShowPicker(true)}>
-              <Text style={styles.dateText}>{date.toISOString().split("T")[0]}</Text>
+            <TouchableOpacity style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg }]} onPress={() => setShowPicker(true)}>
+              <Text style={[styles.dateText, { color: colors.text }]}>{date.toISOString().split("T")[0]}</Text>
             </TouchableOpacity>
             {showPicker && (
               <DateTimePicker
@@ -169,7 +171,7 @@ export default function AddTaskScreen() {
         )}
 
         {/* ── Due Time (optional) ─────────────────────────────── */}
-        <Text style={styles.label}>Due Time (optional)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Due Time (optional)</Text>
         {Platform.OS === "web" ? (
           /* Web: native HTML time input */
           <input
@@ -202,8 +204,8 @@ export default function AddTaskScreen() {
         ) : (
           /* Mobile: tap to reveal time picker */
           <>
-            <TouchableOpacity style={styles.input} onPress={() => setShowTimePicker(true)}>
-              <Text style={styles.dateText}>
+            <TouchableOpacity style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg }]} onPress={() => setShowTimePicker(true)}>
+              <Text style={[styles.dateText, { color: time ? colors.text : colors.textMuted }]}>
                 {time ? time.toTimeString().slice(0, 5) : "No time set"}
               </Text>
             </TouchableOpacity>
@@ -223,26 +225,26 @@ export default function AddTaskScreen() {
 
         {/* ── Reminder toggle ─────────────────────────────────── */}
         <View style={styles.reminderRow}>
-          <Ionicons name="notifications-outline" size={20} color="#222" />
-          <Text style={styles.reminderLabel}>Reminder</Text>
+          <Ionicons name="notifications-outline" size={20} color={colors.text} />
+          <Text style={[styles.reminderLabel, { color: colors.text }]}>Reminder</Text>
           <Switch
             value={reminder}
             onValueChange={setReminder}
-            trackColor={{ false: "#ccc", true: GREEN }}
+            trackColor={{ false: colors.switchTrackFalse, true: GREEN }}
             thumbColor="#fff"
           />
         </View>
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
 
         {/* ── Notes ───────────────────────────────────────────── */}
-        <Text style={styles.label}>Notes</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Notes</Text>
         <TextInput
-          style={styles.notesInput}
+          style={[styles.notesInput, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
           value={notes}
           onChangeText={setNotes}
           multiline
           placeholder="Add notes..."
-          placeholderTextColor="#bbb"
+          placeholderTextColor={colors.textMuted}
           textAlignVertical="top"
         />
 

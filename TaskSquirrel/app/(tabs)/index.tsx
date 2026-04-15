@@ -19,6 +19,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { getTasks, updateTask } from '../../utils/storage';
 import { getSettings } from '../../utils/settings-storage';
+import { useTheme } from '../../utils/theme-context';
 import { useFocusEffect } from 'expo-router';
 
 // App-wide brand colours
@@ -26,6 +27,7 @@ const BLUE = '#2c5aa0';
 const GREEN = '#4a7c2f';
 
 export default function DashboardScreen() {
+  const { colors } = useTheme();
   // All tasks loaded from storage
   const [tasks, setTasks] = useState<any[]>([]);
   const [displayName, setDisplayName] = useState('CX');
@@ -67,16 +69,16 @@ export default function DashboardScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       {/* ── Blue header bar ─────────────────────────────────────── */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <Text style={styles.headerText}>Study Planner</Text>
         <Ionicons name="person-circle-outline" size={28} color="#fff" />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* ── Greeting ──────────────────────────────────────────── */}
-        <Text style={styles.greeting}>Hello, {displayName}</Text>
+        <Text style={[styles.greeting, { color: colors.headerBg }]}>Hello, {displayName}</Text>
 
         {/* ── Stat boxes (Tasks Due Today / Upcoming Events) ───── */}
         <View style={styles.statsRow}>
@@ -91,36 +93,36 @@ export default function DashboardScreen() {
         </View>
 
         {/* ── Today's Tasks list ────────────────────────────────── */}
-        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Today's Tasks</Text>
         {todayTasks.length > 0 ? (
           todayTasks.map((task) => (
             // Tap a task row to toggle its completion status
             <TouchableOpacity key={task.id} onPress={() => handleToggleComplete(task)}>
-              <View style={styles.taskRow}>
+              <View style={[styles.taskRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
                 <Ionicons name="square-outline" size={22} color={BLUE} />
-                <Text style={styles.taskRowText}>{task.title}</Text>
+                <Text style={[styles.taskRowText, { color: colors.text }]}>{task.title}</Text>
                 <Ionicons name="clipboard-outline" size={22} color={BLUE} />
               </View>
             </TouchableOpacity>
           ))
         ) : (
-          <Text style={styles.emptyText}>No tasks due today.</Text>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>No tasks due today.</Text>
         )}
 
         {/* ── Upcoming Deadlines list ──────────────────────────── */}
-        <Text style={styles.sectionTitle}>Upcoming Deadlines</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Upcoming Deadlines</Text>
         {upcomingTasks.length > 0 ? (
           upcomingTasks.map((task) => (
-            <View key={task.id} style={styles.deadlineRow}>
-              <Text style={styles.deadlineTitle}>{task.title}</Text>
+            <View key={task.id} style={[styles.deadlineRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
+              <Text style={[styles.deadlineTitle, { color: colors.text }]}>{task.title}</Text>
               {/* Show "date at HH:MM" if a due time was set */}
-              <Text style={styles.deadlineDate}>
+              <Text style={[styles.deadlineDate, { color: colors.textSecondary }]}>
                 {task.date}{task.time ? ` at ${task.time}` : ""}
               </Text>
             </View>
           ))
         ) : (
-          <Text style={styles.emptyText}>No upcoming deadlines.</Text>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>No upcoming deadlines.</Text>
         )}
       </ScrollView>
     </View>

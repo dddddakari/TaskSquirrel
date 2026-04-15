@@ -13,11 +13,13 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting } from "../utils/settings-storage";
+import { useTheme } from "../utils/theme-context";
 
 const BLUE = "#2c5aa0";
 
 export default function AccountScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const [displayName, setDisplayName] = useState("");
   const [originalName, setOriginalName] = useState("");
 
@@ -46,10 +48,10 @@ export default function AccountScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.bg }]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -62,12 +64,13 @@ export default function AccountScreen() {
           <Ionicons name="person-circle" size={80} color={BLUE} />
         </View>
 
-        <Text style={styles.label}>Display Name</Text>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>Display Name</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
           value={displayName}
           onChangeText={setDisplayName}
           placeholder="Enter your name"
+          placeholderTextColor={colors.textMuted}
           maxLength={30}
         />
 

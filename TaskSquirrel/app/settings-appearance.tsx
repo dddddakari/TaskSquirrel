@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting, AppSettings } from "../utils/settings-storage";
+import { useTheme } from "../utils/theme-context";
 
 const BLUE = "#2c5aa0";
 
@@ -23,6 +24,7 @@ const ACCENT_COLORS = [
 
 export default function AppearanceScreen() {
   const router = useRouter();
+  const { colors, toggle } = useTheme();
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   useFocusEffect(
@@ -34,8 +36,8 @@ export default function AppearanceScreen() {
   if (!settings) return null;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -44,31 +46,32 @@ export default function AppearanceScreen() {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.row}>
+        <View style={[styles.row, { borderBottomColor: colors.borderLighter }]}>
           <View style={styles.rowLeft}>
             <Ionicons name="moon-outline" size={22} color={BLUE} />
-            <Text style={styles.rowLabel}>Dark Mode</Text>
+            <Text style={[styles.rowLabel, { color: colors.text }]}>Dark Mode</Text>
           </View>
           <Switch
             value={settings.darkMode}
             onValueChange={async (v) => {
               const updated = await updateSetting("darkMode", v);
               setSettings(updated);
+              toggle();
             }}
-            trackColor={{ true: BLUE }}
+            trackColor={{ false: colors.switchTrackFalse, true: BLUE }}
           />
         </View>
 
-        <Text style={styles.hint}>
-          Dark mode support is coming in a future update.
+        <Text style={[styles.hint, { color: colors.textMuted }]}>
+          Toggle between light and dark themes.
         </Text>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Show Completed Tasks</Text>
-          <View style={styles.row}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Show Completed Tasks</Text>
+          <View style={[styles.row, { borderBottomColor: colors.borderLighter }]}>
             <View style={styles.rowLeft}>
               <Ionicons name="checkmark-done-outline" size={22} color={BLUE} />
-              <Text style={styles.rowLabel}>Task History</Text>
+              <Text style={[styles.rowLabel, { color: colors.text }]}>Task History</Text>
             </View>
             <Switch
               value={settings.completedTaskHistory}
@@ -76,16 +79,16 @@ export default function AppearanceScreen() {
                 const updated = await updateSetting("completedTaskHistory", v);
                 setSettings(updated);
               }}
-              trackColor={{ true: BLUE }}
+              trackColor={{ false: colors.switchTrackFalse, true: BLUE }}
             />
           </View>
-          <Text style={styles.hint}>
+          <Text style={[styles.hint, { color: colors.textMuted }]}>
             Show completed tasks on the dashboard and calendar.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Accent Color</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Accent Color</Text>
           <View style={styles.colorRow}>
             {ACCENT_COLORS.map((c) => (
               <TouchableOpacity key={c.value} style={styles.colorOption}>
@@ -94,11 +97,11 @@ export default function AppearanceScreen() {
                     <Ionicons name="checkmark" size={18} color="#fff" />
                   )}
                 </View>
-                <Text style={styles.colorLabel}>{c.label}</Text>
+                <Text style={[styles.colorLabel, { color: colors.textSecondary }]}>{c.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={styles.hint}>
+          <Text style={[styles.hint, { color: colors.textMuted }]}>
             Accent color customization coming soon.
           </Text>
         </View>

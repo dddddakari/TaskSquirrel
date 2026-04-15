@@ -11,11 +11,13 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { clearAllTasks } from "../utils/storage";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTheme } from "../utils/theme-context";
 
 const BLUE = "#2c5aa0";
 
 export default function PrivacyScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   const handleClearTasks = () => {
     Alert.alert(
@@ -54,8 +56,8 @@ export default function PrivacyScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -65,38 +67,38 @@ export default function PrivacyScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Data</Text>
-          <Text style={styles.description}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Data</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             All your data is stored locally on this device. TaskSquirrel does not
             send any data to external servers.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Manage Data</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Manage Data</Text>
 
-          <TouchableOpacity style={styles.actionRow} onPress={handleClearTasks}>
+          <TouchableOpacity style={[styles.actionRow, { borderBottomColor: colors.borderLighter }]} onPress={handleClearTasks}>
             <View style={styles.actionLeft}>
               <Ionicons name="trash-outline" size={22} color="#e74c3c" />
-              <Text style={styles.actionLabel}>Clear All Tasks</Text>
+              <Text style={[styles.actionLabel, { color: colors.text }]}>Clear All Tasks</Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" />
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionRow} onPress={handleClearAllData}>
+          <TouchableOpacity style={[styles.actionRow, { borderBottomColor: colors.borderLighter }]} onPress={handleClearAllData}>
             <View style={styles.actionLeft}>
               <Ionicons name="nuclear-outline" size={22} color="#e74c3c" />
               <Text style={[styles.actionLabel, { color: "#e74c3c" }]}>
                 Erase All App Data
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" />
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Permissions</Text>
-          <Text style={styles.description}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Permissions</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             TaskSquirrel requests only the minimum permissions needed to function.
             No camera, location, contacts, or microphone access is required.
           </Text>

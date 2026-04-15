@@ -13,9 +13,11 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getTaskById, Task, updateTask } from "../utils/storage";
+import { useTheme } from "../utils/theme-context";
 
 export default function EditTaskScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id?: string }>();
 
   const [task, setTask] = useState<Task | null>(null);
@@ -73,7 +75,7 @@ export default function EditTaskScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
+      <View style={[styles.loaderContainer, { backgroundColor: colors.bg }]}>
         <ActivityIndicator size="large" color="#2c5aa0" />
       </View>
     );
@@ -81,15 +83,15 @@ export default function EditTaskScreen() {
 
   if (!task) {
     return (
-      <View style={styles.loaderContainer}>
-        <Text>Task not found.</Text>
+      <View style={[styles.loaderContainer, { backgroundColor: colors.bg }]}>
+        <Text style={{ color: colors.text }}>Task not found.</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -98,15 +100,15 @@ export default function EditTaskScreen() {
       </View>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Task Title</Text>
-        <TextInput style={styles.input} value={title} onChangeText={setTitle} />
+        <Text style={[styles.label, { color: colors.text }]}>Task Title</Text>
+        <TextInput style={[styles.input, { backgroundColor: colors.inputBg, borderColor: colors.inputBorder, color: colors.text }]} value={title} onChangeText={setTitle} placeholderTextColor={colors.textMuted} />
 
-        <Text style={styles.label}>Course</Text>
-        <TextInput style={styles.input} value={course} onChangeText={setCourse} />
+        <Text style={[styles.label, { color: colors.text }]}>Course</Text>
+        <TextInput style={[styles.input, { backgroundColor: colors.inputBg, borderColor: colors.inputBorder, color: colors.text }]} value={course} onChangeText={setCourse} placeholderTextColor={colors.textMuted} />
 
-        <Text style={styles.label}>Due Date</Text>
-        <TouchableOpacity style={styles.inputButton} onPress={() => setShowPicker(true)}>
-          <Text>{date.toDateString()}</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Due Date</Text>
+        <TouchableOpacity style={[styles.inputButton, { backgroundColor: colors.inputBg, borderColor: colors.inputBorder }]} onPress={() => setShowPicker(true)}>
+          <Text style={{ color: colors.text }}>{date.toDateString()}</Text>
         </TouchableOpacity>
 
         {showPicker && (
@@ -122,21 +124,22 @@ export default function EditTaskScreen() {
 
         <View style={styles.reminderRow}>
           <View style={styles.reminderLeft}>
-            <Ionicons name="notifications" size={20} color="#111" />
-            <Text style={styles.reminderLabel}>Reminder</Text>
+            <Ionicons name="notifications" size={20} color={colors.text} />
+            <Text style={[styles.reminderLabel, { color: colors.text }]}>Reminder</Text>
           </View>
-          <Switch value={reminder} onValueChange={setReminder} trackColor={{ true: "#5e8f3a" }} />
+          <Switch value={reminder} onValueChange={setReminder} trackColor={{ false: colors.switchTrackFalse, true: "#5e8f3a" }} />
         </View>
 
-        <View style={styles.separator} />
+        <View style={[styles.separator, { borderBottomColor: colors.border }]} />
 
-        <Text style={styles.label}>Notes</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Notes</Text>
         <TextInput
-          style={styles.notes}
+          style={[styles.notes, { backgroundColor: colors.inputBg, borderColor: colors.inputBorder, color: colors.text }]}
           value={notes}
           onChangeText={setNotes}
           multiline
           textAlignVertical="top"
+          placeholderTextColor={colors.textMuted}
         />
 
         <TouchableOpacity style={styles.button} onPress={handleSave}>

@@ -14,11 +14,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getTaskById, Task, updateTask } from "../utils/storage";
-<<<<<<< HEAD
 import { useAuth } from "../utils/auth-context";
-=======
 import { useTheme } from "../utils/theme-context";
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 export default function EditTaskScreen() {
   const router = useRouter();
@@ -112,8 +109,7 @@ export default function EditTaskScreen() {
         <Text style={[styles.label, { color: colors.text }]}>Course</Text>
         <TextInput style={[styles.input, { backgroundColor: colors.inputBg, borderColor: colors.inputBorder, color: colors.text }]} value={course} onChangeText={setCourse} placeholderTextColor={colors.textMuted} />
 
-<<<<<<< HEAD
-        <Text style={styles.label}>Due Date</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Due Date</Text>
         {Platform.OS === "web" ? (
           <input
             type="date"
@@ -121,20 +117,6 @@ export default function EditTaskScreen() {
             onChange={(e: any) => {
               const d = new Date(e.target.value + "T00:00:00");
               if (!isNaN(d.getTime())) setDate(d);
-=======
-        <Text style={[styles.label, { color: colors.text }]}>Due Date</Text>
-        <TouchableOpacity style={[styles.inputButton, { backgroundColor: colors.inputBg, borderColor: colors.inputBorder }]} onPress={() => setShowPicker(true)}>
-          <Text style={{ color: colors.text }}>{date.toDateString()}</Text>
-        </TouchableOpacity>
-
-        {showPicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            onChange={(_, selectedDate) => {
-              setShowPicker(false);
-              if (selectedDate) setDate(selectedDate);
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
             }}
             style={{
               height: 48,

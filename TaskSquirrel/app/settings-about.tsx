@@ -42,19 +42,11 @@ export default function AboutScreen() {
         </View>
 
         <View style={styles.section}>
-<<<<<<< HEAD
-          <Text style={styles.sectionTitle}>Built With</Text>
-          <Text style={styles.techItem}>React Native & Expo</Text>
-          <Text style={styles.techItem}>Expo Router</Text>
-          <Text style={styles.techItem}>Firebase</Text>
-          <Text style={styles.techItem}>TypeScript</Text>
-=======
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Built With</Text>
           <Text style={[styles.techItem, { color: colors.textSecondary }]}>React Native & Expo</Text>
           <Text style={[styles.techItem, { color: colors.textSecondary }]}>Expo Router</Text>
-          <Text style={[styles.techItem, { color: colors.textSecondary }]}>AsyncStorage</Text>
+          <Text style={[styles.techItem, { color: colors.textSecondary }]}>Firebase</Text>
           <Text style={[styles.techItem, { color: colors.textSecondary }]}>TypeScript</Text>
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
         </View>
 
         <View style={styles.section}>

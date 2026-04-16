@@ -11,11 +11,8 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-<<<<<<< HEAD
 import { useAuth } from "../../utils/auth-context";
-=======
 import { useTheme } from "../../utils/theme-context";
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 // App-wide brand colour
 const BLUE = "#2c5aa0";
@@ -35,8 +32,8 @@ const settingsItems = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-<<<<<<< HEAD
   const { signOut } = useAuth();
+  const { colors } = useTheme();
 
   const handleSignOut = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -50,9 +47,6 @@ export default function SettingsScreen() {
       },
     ]);
   };
-=======
-  const { colors } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>

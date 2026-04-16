@@ -61,15 +61,9 @@ export default function HelpSupportScreen() {
         ))}
 
         <View style={styles.contactSection}>
-<<<<<<< HEAD
-          <Text style={styles.sectionTitle}>Contact Us</Text>
-          <Text style={styles.description}>
-            Have a question or found a bug? Reach out and we&apos;ll get back to you.
-=======
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Contact Us</Text>
           <Text style={[styles.description, { color: colors.textSecondary }]}>
-            Have a question or found a bug? Reach out and we'll get back to you.
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
+            Have a question or found a bug? Reach out and we&apos;ll get back to you.
           </Text>
 
           <TouchableOpacity

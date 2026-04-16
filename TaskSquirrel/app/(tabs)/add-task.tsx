@@ -40,11 +40,8 @@ const GREEN = "#4a7c2f";
 
 export default function AddTaskScreen() {
   const router = useRouter();
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
   const { colors } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
   // ── Form state ──────────────────────────────────────────────
   const [title, setTitle] = useState("");          // Required task name

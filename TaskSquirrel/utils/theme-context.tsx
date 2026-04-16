@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { getSettings, updateSetting } from "./settings-storage";
+import { useAuth } from "./auth-context";
 
 /** Color palette for light and dark themes */
 const palette = {
@@ -75,20 +76,23 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export function ThemeProviderCustom({ children }: { children: React.ReactNode }) {
   const [dark, setDark] = useState(false);
+  const { user } = useAuth();
 
   const loadTheme = useCallback(async () => {
-    const s = await getSettings();
+    if (!user) return;
+    const s = await getSettings(user.uid);
     setDark(s.darkMode);
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     loadTheme();
   }, [loadTheme]);
 
   const toggle = async () => {
+    if (!user) return;
     const next = !dark;
     setDark(next);
-    await updateSetting("darkMode", next);
+    await updateSetting(user.uid, "darkMode", next);
   };
 
   const reload = loadTheme;

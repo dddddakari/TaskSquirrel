@@ -28,11 +28,8 @@ const BLUE = '#2c5aa0';
 const GREEN = '#4a7c2f';
 
 export default function DashboardScreen() {
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
   const { colors } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   // All tasks loaded from storage
   const [tasks, setTasks] = useState<any[]>([]);
   const [displayName, setDisplayName] = useState('CX');
@@ -99,13 +96,8 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-<<<<<<< HEAD
         {/* ── Today&apos;s Tasks list ────────────────────────────────── */}
-        <Text style={styles.sectionTitle}>Today&apos;s Tasks</Text>
-=======
-        {/* ── Today's Tasks list ────────────────────────────────── */}
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Today's Tasks</Text>
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Today&apos;s Tasks</Text>
         {todayTasks.length > 0 ? (
           todayTasks.map((task) => (
             // Tap a task row to toggle its completion status

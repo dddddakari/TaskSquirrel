@@ -46,11 +46,8 @@ const GREEN = "#4a7c2f";
 const RED = "#cc2222";
 
 export default function CalendarScreen() {
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
   const { colors, dark } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   // ── Task data state ───────────────────────────────────────────
   const [tasks, setTasks] = useState<any[]>([]);               // All tasks from storage
   const [markedDates, setMarkedDates] = useState<any>({});      // Calendar dot markers

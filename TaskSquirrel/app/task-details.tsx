@@ -11,11 +11,8 @@ import {
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { deleteTask, getTaskById, Task, updateTask } from "../utils/storage";
-<<<<<<< HEAD
 import { useAuth } from "../utils/auth-context";
-=======
 import { useTheme } from "../utils/theme-context";
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 export default function TaskDetailsScreen() {
   const router = useRouter();

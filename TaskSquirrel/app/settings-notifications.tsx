@@ -10,21 +10,15 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting, AppSettings } from "../utils/settings-storage";
-<<<<<<< HEAD
 import { useAuth } from "../utils/auth-context";
-=======
 import { useTheme } from "../utils/theme-context";
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 const BLUE = "#2c5aa0";
 
 export default function NotificationsScreen() {
   const router = useRouter();
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
   const { colors } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   useFocusEffect(
@@ -79,13 +73,8 @@ export default function NotificationsScreen() {
           />
         </View>
 
-<<<<<<< HEAD
-        <Text style={styles.hint}>
-          When enabled, you&apos;ll receive reminders before tasks are due.
-=======
         <Text style={[styles.hint, { color: colors.textMuted }]}>
-          When enabled, you'll receive reminders before tasks are due.
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
+          When enabled, you&apos;ll receive reminders before tasks are due.
         </Text>
 
         <View style={styles.section}>

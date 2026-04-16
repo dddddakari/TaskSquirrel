@@ -29,11 +29,8 @@ const BLUE = "#2c5aa0";
 const GREEN = "#4a7c2f";
 
 export default function CompleteScreen() {
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
   const { colors } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   // Only the completed subset of all tasks
   const [completedTasks, setCompletedTasks] = useState<any[]>([]);
 

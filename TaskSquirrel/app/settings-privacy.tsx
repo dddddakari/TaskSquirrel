@@ -10,23 +10,16 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { clearAllTasks } from "../utils/storage";
-<<<<<<< HEAD
 import { clearSettings } from "../utils/settings-storage";
 import { useAuth } from "../utils/auth-context";
-=======
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme } from "../utils/theme-context";
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 const BLUE = "#2c5aa0";
 
 export default function PrivacyScreen() {
   const router = useRouter();
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
   const { colors } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
   const handleClearTasks = () => {
     Alert.alert(
@@ -79,17 +72,10 @@ export default function PrivacyScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.section}>
-<<<<<<< HEAD
-          <Text style={styles.sectionTitle}>Your Data</Text>
-          <Text style={styles.description}>
-            All your data is stored securely in Firebase. Your tasks and settings
-            are synced to your account and accessible from any device.
-=======
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Data</Text>
           <Text style={[styles.description, { color: colors.textSecondary }]}>
-            All your data is stored locally on this device. TaskSquirrel does not
-            send any data to external servers.
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
+            All your data is stored securely in Firebase. Your tasks and settings
+            are synced to your account and accessible from any device.
           </Text>
         </View>
 

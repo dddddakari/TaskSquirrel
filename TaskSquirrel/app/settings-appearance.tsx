@@ -10,11 +10,8 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting, AppSettings } from "../utils/settings-storage";
-<<<<<<< HEAD
 import { useAuth } from "../utils/auth-context";
-=======
 import { useTheme } from "../utils/theme-context";
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 const BLUE = "#2c5aa0";
 
@@ -28,11 +25,8 @@ const ACCENT_COLORS = [
 
 export default function AppearanceScreen() {
   const router = useRouter();
-<<<<<<< HEAD
   const { user } = useAuth();
-=======
   const { colors, toggle } = useTheme();
->>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   useFocusEffect(

@@ -9,7 +9,7 @@
  * Data is refreshed every time this tab gains focus.
  */
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -20,31 +20,36 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { getTasks, updateTask } from "../../utils/storage";
 import { useFocusEffect } from "expo-router";
+import { useAuth } from "../../utils/auth-context";
+
 
 // App-wide brand colours
 const BLUE = "#2c5aa0";
 const GREEN = "#4a7c2f";
 
 export default function CompleteScreen() {
+  const { user } = useAuth();
   // Only the completed subset of all tasks
   const [completedTasks, setCompletedTasks] = useState<any[]>([]);
 
   /** Loads all tasks, then filters to only the completed ones */
-  const loadTasks = async () => {
-    const data = await getTasks();
+  const loadTasks = useCallback(async () => {
+    if (!user) return;
+    const data = await getTasks(user.uid);
     setCompletedTasks(data.filter((t: any) => t.completed));
-  };
+  }, [user]);
 
   // Reload whenever this tab gains focus
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       loadTasks();
-    }, [])
+    }, [loadTasks])
   );
 
   /** Marks a task as incomplete and refreshes the list */
   const handleMarkIncomplete = async (task: any) => {
-    await updateTask({ ...task, completed: false });
+    if (!user) return;
+    await updateTask(user.uid, { ...task, completed: false });
     loadTasks();
   };
 

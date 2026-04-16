@@ -11,20 +11,22 @@ import {
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { deleteTask, getTaskById, Task, updateTask } from "../utils/storage";
+import { useAuth } from "../utils/auth-context";
 
 export default function TaskDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string }>();
+  const { user } = useAuth();
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
 
   const loadTask = useCallback(async () => {
-    if (!params.id || typeof params.id !== "string") return;
+    if (!params.id || typeof params.id !== "string" || !user) return;
     setLoading(true);
-    const foundTask = await getTaskById(params.id);
+    const foundTask = await getTaskById(user.uid, params.id);
     setTask(foundTask);
     setLoading(false);
-  }, [params.id]);
+  }, [params.id, user]);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,7 +35,7 @@ export default function TaskDetailsScreen() {
   );
 
   const handleDelete = async () => {
-    if (!task) return;
+    if (!task || !user) return;
 
     Alert.alert("Delete Task", `Delete \"${task.title}\"?`, [
       { text: "Cancel", style: "cancel" },
@@ -41,7 +43,7 @@ export default function TaskDetailsScreen() {
         text: "Delete",
         style: "destructive",
         onPress: async () => {
-          await deleteTask(task.id);
+          await deleteTask(user.uid, task.id);
           router.replace("/");
         },
       },
@@ -49,9 +51,9 @@ export default function TaskDetailsScreen() {
   };
 
   const handleToggleComplete = async () => {
-    if (!task) return;
+    if (!task || !user) return;
     const updated = { ...task, completed: !task.completed };
-    await updateTask(updated);
+    await updateTask(user.uid, updated);
     setTask(updated);
   };
 

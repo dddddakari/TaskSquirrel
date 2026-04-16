@@ -10,12 +10,14 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { clearAllTasks } from "../utils/storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { clearSettings } from "../utils/settings-storage";
+import { useAuth } from "../utils/auth-context";
 
 const BLUE = "#2c5aa0";
 
 export default function PrivacyScreen() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const handleClearTasks = () => {
     Alert.alert(
@@ -27,7 +29,8 @@ export default function PrivacyScreen() {
           text: "Delete All",
           style: "destructive",
           onPress: async () => {
-            await clearAllTasks();
+            if (!user) return;
+            await clearAllTasks(user.uid);
             Alert.alert("Done", "All tasks have been deleted.");
           },
         },
@@ -45,7 +48,9 @@ export default function PrivacyScreen() {
           text: "Erase Everything",
           style: "destructive",
           onPress: async () => {
-            await AsyncStorage.clear();
+            if (!user) return;
+            await clearAllTasks(user.uid);
+            await clearSettings(user.uid);
             Alert.alert("Done", "All app data has been erased.");
           },
         },
@@ -67,8 +72,8 @@ export default function PrivacyScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Your Data</Text>
           <Text style={styles.description}>
-            All your data is stored locally on this device. TaskSquirrel does not
-            send any data to external servers.
+            All your data is stored securely in Firebase. Your tasks and settings
+            are synced to your account and accessible from any device.
           </Text>
         </View>
 

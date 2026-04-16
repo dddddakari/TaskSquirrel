@@ -10,21 +10,27 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting, AppSettings } from "../utils/settings-storage";
+import { useAuth } from "../utils/auth-context";
 
 const BLUE = "#2c5aa0";
 
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      (async () => setSettings(await getSettings()))();
-    }, [])
+      (async () => {
+        if (!user) return;
+        setSettings(await getSettings(user.uid));
+      })();
+    }, [user])
   );
 
   const toggle = async (key: keyof AppSettings, value: boolean) => {
-    const updated = await updateSetting(key, value);
+    if (!user) return;
+    const updated = await updateSetting(user.uid, key, value);
     setSettings(updated);
   };
 
@@ -66,7 +72,7 @@ export default function NotificationsScreen() {
         </View>
 
         <Text style={styles.hint}>
-          When enabled, you'll receive reminders before tasks are due.
+          When enabled, you&apos;ll receive reminders before tasks are due.
         </Text>
 
         <View style={styles.section}>
@@ -80,7 +86,8 @@ export default function NotificationsScreen() {
                   settings.reminderTime === time && styles.timeChipActive,
                 ]}
                 onPress={async () => {
-                  const updated = await updateSetting("reminderTime", time);
+                  if (!user) return;
+                  const updated = await updateSetting(user.uid, "reminderTime", time);
                   setSettings(updated);
                 }}
               >

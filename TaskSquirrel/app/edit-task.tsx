@@ -8,15 +8,18 @@ import {
   Switch,
   Alert,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { getTaskById, Task, updateTask } from "../utils/storage";
+import { useAuth } from "../utils/auth-context";
 
 export default function EditTaskScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string }>();
+  const { user } = useAuth();
 
   const [task, setTask] = useState<Task | null>(null);
   const [title, setTitle] = useState("");
@@ -28,9 +31,9 @@ export default function EditTaskScreen() {
   const [loading, setLoading] = useState(true);
 
   const loadTask = useCallback(async () => {
-    if (!params.id || typeof params.id !== "string") return;
+    if (!params.id || typeof params.id !== "string" || !user) return;
     setLoading(true);
-    const foundTask = await getTaskById(params.id);
+    const foundTask = await getTaskById(user.uid, params.id);
 
     if (foundTask) {
       setTask(foundTask);
@@ -42,7 +45,7 @@ export default function EditTaskScreen() {
     }
 
     setLoading(false);
-  }, [params.id]);
+  }, [params.id, user]);
 
   useFocusEffect(
     useCallback(() => {
@@ -51,7 +54,7 @@ export default function EditTaskScreen() {
   );
 
   const handleSave = async () => {
-    if (!task) return;
+    if (!task || !user) return;
 
     if (!title.trim()) {
       Alert.alert("Error", "Task must have a title");
@@ -67,7 +70,7 @@ export default function EditTaskScreen() {
       date: date.toISOString().split("T")[0],
     };
 
-    await updateTask(updatedTask);
+    await updateTask(user.uid, updatedTask);
     router.replace({ pathname: "/task-details", params: { id: updatedTask.id } });
   };
 
@@ -105,19 +108,44 @@ export default function EditTaskScreen() {
         <TextInput style={styles.input} value={course} onChangeText={setCourse} />
 
         <Text style={styles.label}>Due Date</Text>
-        <TouchableOpacity style={styles.inputButton} onPress={() => setShowPicker(true)}>
-          <Text>{date.toDateString()}</Text>
-        </TouchableOpacity>
-
-        {showPicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            onChange={(_, selectedDate) => {
-              setShowPicker(false);
-              if (selectedDate) setDate(selectedDate);
+        {Platform.OS === "web" ? (
+          <input
+            type="date"
+            value={date.toISOString().split("T")[0]}
+            onChange={(e: any) => {
+              const d = new Date(e.target.value + "T00:00:00");
+              if (!isNaN(d.getTime())) setDate(d);
             }}
+            style={{
+              height: 48,
+              borderWidth: 1,
+              borderColor: "#d8d8d8",
+              borderRadius: 8,
+              paddingLeft: 12,
+              marginBottom: 16,
+              fontSize: 14,
+              fontFamily: "inherit",
+              width: "100%",
+              boxSizing: "border-box",
+              backgroundColor: "#fff",
+            } as any}
           />
+        ) : (
+          <>
+            <TouchableOpacity style={styles.inputButton} onPress={() => setShowPicker(true)}>
+              <Text>{date.toDateString()}</Text>
+            </TouchableOpacity>
+            {showPicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                onChange={(_, selectedDate) => {
+                  setShowPicker(false);
+                  if (selectedDate) setDate(selectedDate);
+                }}
+              />
+            )}
+          </>
         )}
 
         <View style={styles.reminderRow}>

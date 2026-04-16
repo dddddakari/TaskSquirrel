@@ -1,19 +1,31 @@
 /**
- * storage.ts — Async storage layer for TaskSquirrel
+ * storage.ts — Firestore storage layer for TaskSquirrel
  *
- * Handles all CRUD operations for tasks using AsyncStorage.
- * Every task is persisted as JSON under the "tasks" key.
- * Tasks are automatically sorted by date after every write.
+ * Handles all CRUD operations for tasks using Firebase Firestore.
+ * Every task is stored as a document in the users/{uid}/tasks collection.
+ * Tasks are automatically sorted by date after every read.
  */
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  writeBatch,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { db } from "./firebase";
 
 /**
  * Shape of a single task stored in the app.
  * All fields are required; `time` may be an empty string if no due time is set.
  */
 export type Task = {
-  id: string;          // Unique identifier (timestamp-based)
+  id: string;          // Firestore document ID
   title: string;       // Task name / description
   course: string;      // Associated course (can be empty)
   notes: string;       // Additional notes (can be empty)
@@ -24,8 +36,11 @@ export type Task = {
   createdAt: string;   // ISO timestamp of when the task was created
 };
 
-/** AsyncStorage key under which all tasks are stored */
-const TASKS_KEY = "tasks";
+/**
+ * Returns a reference to the tasks sub-collection for a given user.
+ */
+const tasksCollection = (userId: string) =>
+  collection(db, "users", userId, "tasks");
 
 /**
  * Sorts an array of tasks by their due date in ascending order.
@@ -36,30 +51,31 @@ const sortTasks = (tasks: Task[]): Task[] => {
 };
 
 /**
- * Loads all tasks from AsyncStorage.
+ * Loads all tasks from Firestore for the given user.
  * Normalizes each task so missing fields get safe defaults —
  * this protects against tasks saved by older versions of the app
  * that may not have every field (e.g. `time` or `createdAt`).
  */
-export const getTasks = async (): Promise<Task[]> => {
+export const getTasks = async (userId: string): Promise<Task[]> => {
   try {
-    const data = await AsyncStorage.getItem(TASKS_KEY);
-    const tasks = data ? JSON.parse(data) : [];
+    const q = query(tasksCollection(userId), orderBy("date", "asc"));
+    const snapshot = await getDocs(q);
+    const tasks: Task[] = snapshot.docs.map((docSnap) => {
+      const data = docSnap.data();
+      return {
+        id: docSnap.id,
+        title: data.title ?? "",
+        course: data.course ?? "",
+        notes: data.notes ?? "",
+        reminder: data.reminder ?? false,
+        date: data.date ?? "",
+        completed: data.completed ?? false,
+        time: data.time ?? "",
+        createdAt: data.createdAt ?? new Date().toISOString(),
+      };
+    });
 
-    // Normalize: fill in any missing fields with sensible defaults
-    const normalizedTasks: Task[] = tasks.map((task: Partial<Task>) => ({
-      id: task.id ?? Date.now().toString() + Math.random().toString(36).slice(2, 8),
-      title: task.title ?? "",
-      course: task.course ?? "",
-      notes: task.notes ?? "",
-      reminder: task.reminder ?? false,
-      date: task.date ?? "",
-      completed: task.completed ?? false,
-      time: task.time ?? "",
-      createdAt: task.createdAt ?? new Date().toISOString(),
-    }));
-
-    return sortTasks(normalizedTasks);
+    return sortTasks(tasks);
   } catch (error) {
     console.error("Error loading tasks:", error);
     return [];
@@ -67,12 +83,24 @@ export const getTasks = async (): Promise<Task[]> => {
 };
 
 /**
- * Overwrites the entire tasks array in AsyncStorage.
- * Used internally by addTask, updateTask, deleteTask, etc.
+ * Overwrites the entire tasks collection in Firestore for the given user.
+ * Used internally — prefer addTask, updateTask, deleteTask instead.
  */
-export const saveTasks = async (tasks: Task[]): Promise<void> => {
+export const saveTasks = async (userId: string, tasks: Task[]): Promise<void> => {
   try {
-    await AsyncStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+    // Delete all existing tasks first
+    const snapshot = await getDocs(tasksCollection(userId));
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((docSnap) => {
+      batch.delete(docSnap.ref);
+    });
+    // Add all new tasks
+    tasks.forEach((task) => {
+      const newDocRef = doc(tasksCollection(userId));
+      const { id, ...taskData } = task;
+      batch.set(newDocRef, taskData);
+    });
+    await batch.commit();
   } catch (error) {
     console.error("Error saving tasks:", error);
     throw error;
@@ -80,18 +108,15 @@ export const saveTasks = async (tasks: Task[]): Promise<void> => {
 };
 
 /**
- * Creates a new task with an auto-generated id, createdAt, and completed=false.
- * Appends it to the existing list, sorts, and persists.
+ * Creates a new task in Firestore with auto-generated id, createdAt, and completed=false.
  * Returns the newly created Task object.
  */
 export const addTask = async (
+  userId: string,
   task: Omit<Task, "id" | "createdAt" | "completed">
 ): Promise<Task> => {
   try {
-    const tasks = await getTasks();
-
-    const newTask: Task = {
-      id: Date.now().toString(),
+    const taskData = {
       title: task.title,
       course: task.course,
       notes: task.notes,
@@ -102,10 +127,12 @@ export const addTask = async (
       createdAt: new Date().toISOString(),
     };
 
-    const updatedTasks = sortTasks([...tasks, newTask]);
-    await saveTasks(updatedTasks);
+    const docRef = await addDoc(tasksCollection(userId), taskData);
 
-    return newTask;
+    return {
+      id: docRef.id,
+      ...taskData,
+    };
   } catch (error) {
     console.error("Error adding task:", error);
     throw error;
@@ -114,17 +141,12 @@ export const addTask = async (
 
 /**
  * Replaces an existing task (matched by id) with the provided updatedTask object.
- * Re-sorts after replacing so the list stays in date order.
  */
-export const updateTask = async (updatedTask: Task): Promise<void> => {
+export const updateTask = async (userId: string, updatedTask: Task): Promise<void> => {
   try {
-    const tasks = await getTasks();
-
-    const updatedTasks = tasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task
-    );
-
-    await saveTasks(sortTasks(updatedTasks));
+    const taskRef = doc(db, "users", userId, "tasks", updatedTask.id);
+    const { id, ...taskData } = updatedTask;
+    await updateDoc(taskRef, taskData);
   } catch (error) {
     console.error("Error updating task:", error);
     throw error;
@@ -134,11 +156,10 @@ export const updateTask = async (updatedTask: Task): Promise<void> => {
 /**
  * Permanently removes a task by its id.
  */
-export const deleteTask = async (taskId: string): Promise<void> => {
+export const deleteTask = async (userId: string, taskId: string): Promise<void> => {
   try {
-    const tasks = await getTasks();
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-    await saveTasks(updatedTasks);
+    const taskRef = doc(db, "users", userId, "tasks", taskId);
+    await deleteDoc(taskRef);
   } catch (error) {
     console.error("Error deleting task:", error);
     throw error;
@@ -148,10 +169,24 @@ export const deleteTask = async (taskId: string): Promise<void> => {
 /**
  * Looks up a single task by id. Returns null if not found.
  */
-export const getTaskById = async (taskId: string): Promise<Task | null> => {
+export const getTaskById = async (userId: string, taskId: string): Promise<Task | null> => {
   try {
-    const tasks = await getTasks();
-    return tasks.find((task) => task.id === taskId) ?? null;
+    const taskRef = doc(db, "users", userId, "tasks", taskId);
+    const docSnap = await getDoc(taskRef);
+    if (!docSnap.exists()) return null;
+
+    const data = docSnap.data();
+    return {
+      id: docSnap.id,
+      title: data.title ?? "",
+      course: data.course ?? "",
+      notes: data.notes ?? "",
+      reminder: data.reminder ?? false,
+      date: data.date ?? "",
+      completed: data.completed ?? false,
+      time: data.time ?? "",
+      createdAt: data.createdAt ?? new Date().toISOString(),
+    };
   } catch (error) {
     console.error("Error getting task by id:", error);
     return null;
@@ -161,17 +196,13 @@ export const getTaskById = async (taskId: string): Promise<Task | null> => {
 /**
  * Flips the completed flag on a task (complete ↔ incomplete).
  */
-export const toggleTaskComplete = async (taskId: string): Promise<void> => {
+export const toggleTaskComplete = async (userId: string, taskId: string): Promise<void> => {
   try {
-    const tasks = await getTasks();
+    const task = await getTaskById(userId, taskId);
+    if (!task) return;
 
-    const updatedTasks = tasks.map((task) =>
-      task.id === taskId
-        ? { ...task, completed: !task.completed }
-        : task
-    );
-
-    await saveTasks(sortTasks(updatedTasks));
+    const taskRef = doc(db, "users", userId, "tasks", taskId);
+    await updateDoc(taskRef, { completed: !task.completed });
   } catch (error) {
     console.error("Error toggling task completion:", error);
     throw error;
@@ -179,11 +210,16 @@ export const toggleTaskComplete = async (taskId: string): Promise<void> => {
 };
 
 /**
- * Wipes all tasks from storage. Used for debugging / reset.
+ * Wipes all tasks from Firestore for the given user.
  */
-export const clearAllTasks = async (): Promise<void> => {
+export const clearAllTasks = async (userId: string): Promise<void> => {
   try {
-    await AsyncStorage.removeItem(TASKS_KEY);
+    const snapshot = await getDocs(tasksCollection(userId));
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((docSnap) => {
+      batch.delete(docSnap.ref);
+    });
+    await batch.commit();
   } catch (error) {
     console.error("Error clearing tasks:", error);
     throw error;

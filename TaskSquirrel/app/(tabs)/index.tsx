@@ -8,7 +8,7 @@
  * Data is reloaded every time this tab gains focus via useFocusEffect.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -20,29 +20,32 @@ import { Ionicons } from '@expo/vector-icons';
 import { getTasks, updateTask } from '../../utils/storage';
 import { getSettings } from '../../utils/settings-storage';
 import { useFocusEffect } from 'expo-router';
+import { useAuth } from '../../utils/auth-context';
 
 // App-wide brand colours
 const BLUE = '#2c5aa0';
 const GREEN = '#4a7c2f';
 
 export default function DashboardScreen() {
+  const { user } = useAuth();
   // All tasks loaded from storage
   const [tasks, setTasks] = useState<any[]>([]);
   const [displayName, setDisplayName] = useState('CX');
 
-  /** Fetches the full task list and display name from AsyncStorage */
-  const loadTasks = async () => {
-    const data = await getTasks();
+  /** Fetches the full task list and display name from Firestore */
+  const loadTasks = useCallback(async () => {
+    if (!user) return;
+    const data = await getTasks(user.uid);
     setTasks(data);
-    const settings = await getSettings();
+    const settings = await getSettings(user.uid);
     setDisplayName(settings.displayName);
-  };
+  }, [user]);
 
   // Reload tasks every time this tab is focused
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       loadTasks();
-    }, [])
+    }, [loadTasks])
   );
 
   // Derive today's date string for filtering
@@ -62,7 +65,8 @@ export default function DashboardScreen() {
    * then reloads the list to reflect the change.
    */
   const handleToggleComplete = async (task: any) => {
-    await updateTask({ ...task, completed: !task.completed });
+    if (!user) return;
+    await updateTask(user.uid, { ...task, completed: !task.completed });
     loadTasks();
   };
 
@@ -90,8 +94,8 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ── Today's Tasks list ────────────────────────────────── */}
-        <Text style={styles.sectionTitle}>Today's Tasks</Text>
+        {/* ── Today&apos;s Tasks list ────────────────────────────────── */}
+        <Text style={styles.sectionTitle}>Today&apos;s Tasks</Text>
         {todayTasks.length > 0 ? (
           todayTasks.map((task) => (
             // Tap a task row to toggle its completion status

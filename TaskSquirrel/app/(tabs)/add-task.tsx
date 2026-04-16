@@ -31,12 +31,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { addTask } from "../../utils/storage";
 import { useRouter } from "expo-router";
-
-// Web fallback — only loaded when running on web to avoid native crash
-const WebDateInput =
-  Platform.OS === "web"
-    ? require("react-native-web").TextInput
-    : null;
+import { useAuth } from "../../utils/auth-context";
 
 // App-wide brand colours
 const BLUE = "#2c5aa0";
@@ -44,6 +39,7 @@ const GREEN = "#4a7c2f";
 
 export default function AddTaskScreen() {
   const router = useRouter();
+  const { user } = useAuth();
 
   // ── Form state ──────────────────────────────────────────────
   const [title, setTitle] = useState("");          // Required task name
@@ -76,7 +72,8 @@ export default function AddTaskScreen() {
     };
 
     try {
-      await addTask(newTask);
+      if (!user) return;
+      await addTask(user.uid, newTask);
       Alert.alert("Success", "Task added!", [
         { text: "OK", onPress: () => router.push("/calendar") },
       ]);
@@ -87,8 +84,8 @@ export default function AddTaskScreen() {
       setNotes("");
       setDate(new Date());
       setTime(null);
-    } catch (error) {
-      Alert.alert("Error", "Failed to save task");
+    } catch (_) {
+      Alert.alert("Error", "Could not add task. Please try again.");
     }
   };
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CalendarScreen — Monthly calendar view with task list + Task Details modal.
  *
  * Features:
@@ -15,7 +15,7 @@
  * Data is refreshed every time this tab gains focus via useFocusEffect.
  */
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -36,6 +36,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { getTasks, deleteTask, updateTask } from "../../utils/storage";
 import { useFocusEffect } from "expo-router";
+import { useAuth } from "../../utils/auth-context";
+
 
 // App-wide brand colours
 const BLUE = "#2c5aa0";
@@ -43,6 +45,7 @@ const GREEN = "#4a7c2f";
 const RED = "#cc2222";
 
 export default function CalendarScreen() {
+  const { user } = useAuth();
   // ── Task data state ───────────────────────────────────────────
   const [tasks, setTasks] = useState<any[]>([]);               // All tasks from storage
   const [markedDates, setMarkedDates] = useState<any>({});      // Calendar dot markers
@@ -67,9 +70,10 @@ export default function CalendarScreen() {
    * Loads all tasks from storage, builds the calendar dot markers,
    * and updates the filtered list (either for a selected date or all incomplete).
    */
-  const loadTasks = async () => {
+  const loadTasks = useCallback(async () => {
     try {
-      const data = await getTasks();
+      if (!user) return;
+      const data = await getTasks(user.uid);
       setTasks(data);
 
       // Build marker map: each date with a task gets a green dot
@@ -88,13 +92,13 @@ export default function CalendarScreen() {
     } catch (error) {
       console.error("Failed to load tasks:", error);
     }
-  };
+  }, [user, selectedDate]);
 
   // Reload tasks every time this tab is focused
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       loadTasks();
-    }, [])
+    }, [loadTasks])
   );
 
   /** When a calendar day is tapped, filter the task list to that date */
@@ -134,6 +138,7 @@ export default function CalendarScreen() {
       Alert.alert("Error", "Task title cannot be empty");
       return;
     }
+    if (!user) return;
     const updated = {
       ...selectedTask,
       title: editTitle.trim(),
@@ -143,7 +148,7 @@ export default function CalendarScreen() {
       reminder: editReminder,
       time: editTime,
     };
-    await updateTask(updated);
+    await updateTask(user.uid, updated);
     setSelectedTask(updated);
     await loadTasks();
     setIsEditing(false);
@@ -160,7 +165,8 @@ export default function CalendarScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            await deleteTask(selectedTask.id);
+            if (!user) return;
+            await deleteTask(user.uid, selectedTask.id);
             await loadTasks();
             setModalVisible(false);
           },
@@ -171,8 +177,9 @@ export default function CalendarScreen() {
 
   /** Flips the task's completed status and refreshes the list */
   const handleToggleComplete = async () => {
+    if (!user) return;
     const updatedTask = { ...selectedTask, completed: !selectedTask.completed };
-    await updateTask(updatedTask);
+    await updateTask(user.uid, updatedTask);
     await loadTasks();
     setSelectedTask(updatedTask);
   };

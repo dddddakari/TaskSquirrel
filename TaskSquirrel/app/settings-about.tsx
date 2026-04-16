@@ -43,7 +43,7 @@ export default function AboutScreen() {
           <Text style={styles.sectionTitle}>Built With</Text>
           <Text style={styles.techItem}>React Native & Expo</Text>
           <Text style={styles.techItem}>Expo Router</Text>
-          <Text style={styles.techItem}>AsyncStorage</Text>
+          <Text style={styles.techItem}>Firebase</Text>
           <Text style={styles.techItem}>TypeScript</Text>
         </View>
 

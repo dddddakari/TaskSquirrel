@@ -13,22 +13,25 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting } from "../utils/settings-storage";
+import { useAuth } from "../utils/auth-context";
 
 const BLUE = "#2c5aa0";
 
 export default function AccountScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [originalName, setOriginalName] = useState("");
 
   useFocusEffect(
     useCallback(() => {
       (async () => {
-        const s = await getSettings();
+        if (!user) return;
+        const s = await getSettings(user.uid);
         setDisplayName(s.displayName);
         setOriginalName(s.displayName);
       })();
-    }, [])
+    }, [user])
   );
 
   const handleSave = async () => {
@@ -37,7 +40,8 @@ export default function AccountScreen() {
       Alert.alert("Invalid", "Display name cannot be empty.");
       return;
     }
-    await updateSetting("displayName", trimmed);
+    if (!user) return;
+    await updateSetting(user.uid, "displayName", trimmed);
     setOriginalName(trimmed);
     Alert.alert("Saved", "Display name updated.");
   };

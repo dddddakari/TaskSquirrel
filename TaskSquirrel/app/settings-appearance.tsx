@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { getSettings, updateSetting, AppSettings } from "../utils/settings-storage";
+import { useAuth } from "../utils/auth-context";
 
 const BLUE = "#2c5aa0";
 
@@ -23,12 +24,16 @@ const ACCENT_COLORS = [
 
 export default function AppearanceScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [settings, setSettings] = useState<AppSettings | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      (async () => setSettings(await getSettings()))();
-    }, [])
+      (async () => {
+        if (!user) return;
+        setSettings(await getSettings(user.uid));
+      })();
+    }, [user])
   );
 
   if (!settings) return null;
@@ -52,7 +57,8 @@ export default function AppearanceScreen() {
           <Switch
             value={settings.darkMode}
             onValueChange={async (v) => {
-              const updated = await updateSetting("darkMode", v);
+              if (!user) return;
+              const updated = await updateSetting(user.uid, "darkMode", v);
               setSettings(updated);
             }}
             trackColor={{ true: BLUE }}
@@ -73,7 +79,8 @@ export default function AppearanceScreen() {
             <Switch
               value={settings.completedTaskHistory}
               onValueChange={async (v) => {
-                const updated = await updateSetting("completedTaskHistory", v);
+                if (!user) return;
+                const updated = await updateSetting(user.uid, "completedTaskHistory", v);
                 setSettings(updated);
               }}
               trackColor={{ true: BLUE }}

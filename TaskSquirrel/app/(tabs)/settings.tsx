@@ -8,9 +8,10 @@
  */
 
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useAuth } from "../../utils/auth-context";
 
 // App-wide brand colour
 const BLUE = "#2c5aa0";
@@ -30,6 +31,20 @@ const settingsItems = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { signOut } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Sign Out",
+        style: "destructive",
+        onPress: async () => {
+          await signOut();
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.container}>
@@ -52,6 +67,14 @@ export default function SettingsScreen() {
             <Ionicons name="chevron-forward" size={18} color="#bbb" />
           </TouchableOpacity>
         ))}
+      </View>
+
+      {/* Sign Out button */}
+      <View style={styles.list}>
+        <TouchableOpacity style={styles.signOutItem} onPress={handleSignOut}>
+          <Ionicons name="log-out-outline" size={22} color="#e74c3c" />
+          <Text style={styles.signOutLabel}>Sign Out</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -85,4 +108,14 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f0f0f0",
   },
   itemLabel: { flex: 1, fontSize: 15, color: "#222", marginLeft: 14 },
+
+  // Sign out button row
+  signOutItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  signOutLabel: { flex: 1, fontSize: 15, color: "#e74c3c", marginLeft: 14, fontWeight: "600" },
 });

@@ -11,10 +11,15 @@ import {
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { deleteTask, getTaskById, Task, updateTask } from "../utils/storage";
+<<<<<<< HEAD
 import { useAuth } from "../utils/auth-context";
+=======
+import { useTheme } from "../utils/theme-context";
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 export default function TaskDetailsScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id?: string }>();
   const { user } = useAuth();
   const [task, setTask] = useState<Task | null>(null);
@@ -59,7 +64,7 @@ export default function TaskDetailsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loaderContainer}>
+      <View style={[styles.loaderContainer, { backgroundColor: colors.bg }]}>
         <ActivityIndicator size="large" color="#2c5aa0" />
       </View>
     );
@@ -67,15 +72,15 @@ export default function TaskDetailsScreen() {
 
   if (!task) {
     return (
-      <View style={styles.loaderContainer}>
-        <Text>Task not found.</Text>
+      <View style={[styles.loaderContainer, { backgroundColor: colors.bg }]}>
+        <Text style={{ color: colors.text }}>Task not found.</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -85,23 +90,23 @@ export default function TaskDetailsScreen() {
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.block}>
-          <Text style={styles.taskTitle}>{task.title}</Text>
-          {!!task.course && <Text style={styles.course}>{task.course}</Text>}
+          <Text style={[styles.taskTitle, { color: colors.text }]}>{task.title}</Text>
+          {!!task.course && <Text style={[styles.course, { color: colors.textSecondary }]}>{task.course}</Text>}
         </View>
 
         <View style={styles.metaRow}>
-          <Ionicons name="calendar-outline" size={20} color="#111" />
-          <Text style={styles.metaText}>Due Date: {task.date}</Text>
+          <Ionicons name="calendar-outline" size={20} color={colors.text} />
+          <Text style={[styles.metaText, { color: colors.text }]}>Due Date: {task.date}</Text>
         </View>
 
         <View style={styles.metaRow}>
-          <Ionicons name="notifications" size={20} color="#111" />
-          <Text style={styles.metaText}>Reminder: {task.reminder ? "On" : "Off"}</Text>
+          <Ionicons name="notifications" size={20} color={colors.text} />
+          <Text style={[styles.metaText, { color: colors.text }]}>Reminder: {task.reminder ? "On" : "Off"}</Text>
         </View>
 
-        <View style={styles.notesBox}>
-          <Text style={styles.notesTitle}>Task notes</Text>
-          <Text style={styles.notesText}>{task.notes || "No notes added."}</Text>
+        <View style={[styles.notesBox, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.notesTitle, { color: colors.text }]}>Task notes</Text>
+          <Text style={[styles.notesText, { color: colors.textSecondary }]}>{task.notes || "No notes added."}</Text>
         </View>
 
         <TouchableOpacity style={styles.completeButton} onPress={handleToggleComplete}>

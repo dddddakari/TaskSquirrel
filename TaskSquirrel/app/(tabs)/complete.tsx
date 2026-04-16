@@ -19,6 +19,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { getTasks, updateTask } from "../../utils/storage";
+import { useTheme } from "../../utils/theme-context";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "../../utils/auth-context";
 
@@ -28,7 +29,11 @@ const BLUE = "#2c5aa0";
 const GREEN = "#4a7c2f";
 
 export default function CompleteScreen() {
+<<<<<<< HEAD
   const { user } = useAuth();
+=======
+  const { colors } = useTheme();
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   // Only the completed subset of all tasks
   const [completedTasks, setCompletedTasks] = useState<any[]>([]);
 
@@ -55,11 +60,11 @@ export default function CompleteScreen() {
 
   /** Renders a single completed task card */
   const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.taskCard}>
+    <View style={[styles.taskCard, { borderColor: colors.border, backgroundColor: colors.card }]}>
       <View style={{ flex: 1 }}>
         {/* Title with strikethrough to indicate completion */}
-        <Text style={styles.taskTitle}>{item.title}</Text>
-        {item.course ? <Text style={styles.taskCourse}>{item.course}</Text> : null}
+        <Text style={[styles.taskTitle, { color: colors.textMuted }]}>{item.title}</Text>
+        {item.course ? <Text style={[styles.taskCourse, { color: colors.textSecondary }]}>{item.course}</Text> : null}
         {/* Show "date at HH:MM" if a due time was set */}
         <Text style={styles.taskDate}>
           {item.date}{item.time ? ` at ${item.time}` : ""}
@@ -73,9 +78,9 @@ export default function CompleteScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       {/* ── Blue header bar ─────────────────────────────────────── */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <Text style={styles.headerText}>Complete</Text>
         <Ionicons name="person-circle-outline" size={28} color="#fff" />
       </View>
@@ -83,8 +88,8 @@ export default function CompleteScreen() {
       {completedTasks.length === 0 ? (
         /* ── Empty state: no completed tasks yet ───────────────── */
         <View style={styles.emptyState}>
-          <Ionicons name="clipboard-outline" size={60} color="#ccc" />
-          <Text style={styles.emptyText}>No completed tasks yet</Text>
+          <Ionicons name="clipboard-outline" size={60} color={colors.emptyIcon} />
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>No completed tasks yet</Text>
         </View>
       ) : (
         /* ── List of completed tasks ──────────────────────────── */

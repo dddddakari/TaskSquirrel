@@ -19,6 +19,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { getTasks, updateTask } from '../../utils/storage';
 import { getSettings } from '../../utils/settings-storage';
+import { useTheme } from '../../utils/theme-context';
 import { useFocusEffect } from 'expo-router';
 import { useAuth } from '../../utils/auth-context';
 
@@ -27,7 +28,11 @@ const BLUE = '#2c5aa0';
 const GREEN = '#4a7c2f';
 
 export default function DashboardScreen() {
+<<<<<<< HEAD
   const { user } = useAuth();
+=======
+  const { colors } = useTheme();
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   // All tasks loaded from storage
   const [tasks, setTasks] = useState<any[]>([]);
   const [displayName, setDisplayName] = useState('CX');
@@ -71,16 +76,16 @@ export default function DashboardScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       {/* ── Blue header bar ─────────────────────────────────────── */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <Text style={styles.headerText}>Study Planner</Text>
         <Ionicons name="person-circle-outline" size={28} color="#fff" />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* ── Greeting ──────────────────────────────────────────── */}
-        <Text style={styles.greeting}>Hello, {displayName}</Text>
+        <Text style={[styles.greeting, { color: colors.headerBg }]}>Hello, {displayName}</Text>
 
         {/* ── Stat boxes (Tasks Due Today / Upcoming Events) ───── */}
         <View style={styles.statsRow}>
@@ -94,46 +99,42 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+<<<<<<< HEAD
         {/* ── Today&apos;s Tasks list ────────────────────────────────── */}
         <Text style={styles.sectionTitle}>Today&apos;s Tasks</Text>
+=======
+        {/* ── Today's Tasks list ────────────────────────────────── */}
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Today's Tasks</Text>
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
         {todayTasks.length > 0 ? (
           todayTasks.map((task) => (
             // Tap a task row to toggle its completion status
             <TouchableOpacity key={task.id} onPress={() => handleToggleComplete(task)}>
-              <View style={styles.taskRow}>
+              <View style={[styles.taskRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
                 <Ionicons name="square-outline" size={22} color={BLUE} />
-                <Text style={styles.taskRowText}>{task.title}</Text>
+                <Text style={[styles.taskRowText, { color: colors.text }]}>{task.title}</Text>
                 <Ionicons name="clipboard-outline" size={22} color={BLUE} />
               </View>
             </TouchableOpacity>
           ))
         ) : (
-          // Empty placeholder rows when there are no tasks today
-          <>
-            <View style={styles.taskRow} />
-            <View style={styles.taskRow} />
-            <View style={styles.taskRow} />
-          </>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>No tasks due today.</Text>
         )}
 
         {/* ── Upcoming Deadlines list ──────────────────────────── */}
-        <Text style={styles.sectionTitle}>Upcoming Deadlines</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Upcoming Deadlines</Text>
         {upcomingTasks.length > 0 ? (
           upcomingTasks.map((task) => (
-            <View key={task.id} style={styles.deadlineRow}>
-              <Text style={styles.deadlineTitle}>{task.title}</Text>
+            <View key={task.id} style={[styles.deadlineRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
+              <Text style={[styles.deadlineTitle, { color: colors.text }]}>{task.title}</Text>
               {/* Show "date at HH:MM" if a due time was set */}
-              <Text style={styles.deadlineDate}>
+              <Text style={[styles.deadlineDate, { color: colors.textSecondary }]}>
                 {task.date}{task.time ? ` at ${task.time}` : ""}
               </Text>
             </View>
           ))
         ) : (
-          // Empty placeholder rows when no upcoming deadlines exist
-          <>
-            <View style={styles.deadlineRow} />
-            <View style={styles.deadlineRow} />
-          </>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>No upcoming deadlines.</Text>
         )}
       </ScrollView>
     </View>
@@ -198,4 +199,5 @@ const styles = StyleSheet.create({
   },
   deadlineTitle: { fontSize: 14, color: '#222' },
   deadlineDate: { fontSize: 12, color: '#666' },
+  emptyText: { textAlign: 'center', color: '#999', fontSize: 14, marginTop: 20, marginBottom: 40 },
 });

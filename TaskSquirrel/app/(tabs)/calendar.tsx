@@ -35,6 +35,7 @@ import { Calendar } from "react-native-calendars";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import { getTasks, deleteTask, updateTask } from "../../utils/storage";
+import { useTheme } from "../../utils/theme-context";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "../../utils/auth-context";
 
@@ -45,7 +46,11 @@ const GREEN = "#4a7c2f";
 const RED = "#cc2222";
 
 export default function CalendarScreen() {
+<<<<<<< HEAD
   const { user } = useAuth();
+=======
+  const { colors, dark } = useTheme();
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
   // ── Task data state ───────────────────────────────────────────
   const [tasks, setTasks] = useState<any[]>([]);               // All tasks from storage
   const [markedDates, setMarkedDates] = useState<any>({});      // Calendar dot markers
@@ -199,13 +204,13 @@ export default function CalendarScreen() {
   /** Renders a single task card in the list below the calendar */
   const renderTaskItem = ({ item }: { item: any }) => (
     <TouchableOpacity onPress={() => handleTaskPress(item)}>
-      <View style={[styles.taskCard, item.completed && styles.completedCard]}>
+      <View style={[styles.taskCard, { borderColor: colors.border, backgroundColor: colors.card }, item.completed && { backgroundColor: colors.completedCardBg, opacity: 0.7 }]}>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.taskCardTitle, item.completed && styles.completedText]}>
+          <Text style={[styles.taskCardTitle, { color: colors.text }, item.completed && styles.completedText]}>
             {item.title}
           </Text>
           {item.course ? (
-            <Text style={styles.taskCardCourse}>{item.course}</Text>
+            <Text style={[styles.taskCardCourse, { color: colors.textSecondary }]}>{item.course}</Text>
           ) : null}
         </View>
         <View style={{ alignItems: "flex-end" }}>
@@ -221,20 +226,24 @@ export default function CalendarScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <Text style={styles.headerText}>Calendar</Text>
         <Ionicons name="person-circle-outline" size={28} color="#fff" />
       </View>
 
       <ScrollView>
         {/* Calendar */}
-        <View style={styles.calendarBox}>
+        <View style={[styles.calendarBox, { backgroundColor: colors.calendarBg, borderColor: colors.borderLight }]}>
           <Calendar
             markedDates={computedMarkedDates}
             onDayPress={handleDayPress}
             theme={{
+              calendarBackground: colors.calendarBg,
+              dayTextColor: colors.calendarDayText,
+              monthTextColor: colors.calendarText,
+              textSectionTitleColor: colors.textSecondary,
               selectedDayBackgroundColor: BLUE,
               todayTextColor: BLUE,
               arrowColor: BLUE,
@@ -243,13 +252,15 @@ export default function CalendarScreen() {
               textDayFontSize: 14,
               textMonthFontSize: 15,
               textDayHeaderFontSize: 13,
+              textDisabledColor: colors.textMuted,
             }}
+            key={dark ? "dark" : "light"}
           />
         </View>
 
         {/* Upcoming section */}
         <View style={styles.sectionRow}>
-          <Text style={styles.sectionTitle}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
             {selectedDate ? `Tasks for ${selectedDate}` : "Upcoming"}
           </Text>
           {selectedDate ? (
@@ -260,11 +271,7 @@ export default function CalendarScreen() {
         </View>
 
         {filteredTasks.length === 0 ? (
-          <>
-            <View style={styles.emptyCard} />
-            <View style={styles.emptyCard} />
-            <View style={styles.emptyCard} />
-          </>
+          <Text style={[styles.emptyText, { color: colors.textMuted }]}>No tasks to show.</Text>
         ) : (
           <FlatList
             data={filteredTasks}
@@ -283,9 +290,9 @@ export default function CalendarScreen() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, { backgroundColor: colors.modalBg }]}>
           {/* Modal Header */}
-          <View style={styles.modalHeader}>
+          <View style={[styles.modalHeader, { backgroundColor: colors.headerBg }]}>
             <TouchableOpacity
               onPress={() => {
                 if (isEditing) {
@@ -314,21 +321,23 @@ export default function CalendarScreen() {
           <ScrollView contentContainerStyle={styles.modalBody} keyboardShouldPersistTaps="handled">
             {isEditing ? (
               <>
-                <Text style={styles.editLabel}>Task Title</Text>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Task Title</Text>
                 <TextInput
-                  style={styles.editInput}
+                  style={[styles.editInput, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   value={editTitle}
                   onChangeText={setEditTitle}
                   placeholder="Task title"
+                  placeholderTextColor={colors.textMuted}
                 />
-                <Text style={styles.editLabel}>Course</Text>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Course</Text>
                 <TextInput
-                  style={styles.editInput}
+                  style={[styles.editInput, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   value={editCourse}
                   onChangeText={setEditCourse}
                   placeholder="Course name"
+                  placeholderTextColor={colors.textMuted}
                 />
-                <Text style={styles.editLabel}>Due Date</Text>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Due Date</Text>
                 {Platform.OS === "web" ? (
                   <input
                     type="date"
@@ -342,14 +351,15 @@ export default function CalendarScreen() {
                   />
                 ) : (
                   <TextInput
-                    style={styles.editInput}
+                    style={[styles.editInput, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                     value={editDate}
                     onChangeText={setEditDate}
                     placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textMuted}
                     keyboardType="numeric"
                   />
                 )}
-                <Text style={styles.editLabel}>Due Time (optional)</Text>
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Due Time (optional)</Text>
                 {Platform.OS === "web" ? (
                   <input
                     type="time"
@@ -363,8 +373,8 @@ export default function CalendarScreen() {
                   />
                 ) : (
                   <>
-                    <TouchableOpacity style={styles.editInput} onPress={() => setShowEditTimePicker(true)}>
-                      <Text style={{ fontSize: 14, color: editTime ? "#222" : "#999" }}>
+                    <TouchableOpacity style={[styles.editInput, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg }]} onPress={() => setShowEditTimePicker(true)}>
+                      <Text style={{ fontSize: 14, color: editTime ? colors.text : colors.textMuted }}>
                         {editTime || "No time set"}
                       </Text>
                     </TouchableOpacity>
@@ -382,23 +392,24 @@ export default function CalendarScreen() {
                   </>
                 )}
                 <View style={styles.editReminderRow}>
-                  <Ionicons name="notifications-outline" size={18} color="#222" />
-                  <Text style={styles.editReminderLabel}>Reminder</Text>
+                  <Ionicons name="notifications-outline" size={18} color={colors.text} />
+                  <Text style={[styles.editReminderLabel, { color: colors.text }]}>Reminder</Text>
                   <Switch
                     value={editReminder}
                     onValueChange={setEditReminder}
-                    trackColor={{ false: "#ccc", true: GREEN }}
+                    trackColor={{ false: colors.switchTrackFalse, true: GREEN }}
                     thumbColor="#fff"
                   />
                 </View>
-                <View style={styles.divider} />
-                <Text style={styles.editLabel}>Notes</Text>
+                <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+                <Text style={[styles.editLabel, { color: colors.textSecondary }]}>Notes</Text>
                 <TextInput
-                  style={styles.editNotesInput}
+                  style={[styles.editNotesInput, { borderColor: colors.inputBorder, backgroundColor: colors.inputBg, color: colors.text }]}
                   value={editNotes}
                   onChangeText={setEditNotes}
                   multiline
                   placeholder="Add notes..."
+                  placeholderTextColor={colors.textMuted}
                   textAlignVertical="top"
                 />
                 <TouchableOpacity style={styles.completeBtn} onPress={handleSaveEdit}>
@@ -408,37 +419,37 @@ export default function CalendarScreen() {
             ) : (
               <>
                 {/* Title + Course */}
-                <Text style={styles.detailTaskTitle}>{selectedTask?.title}</Text>
+                <Text style={[styles.detailTaskTitle, { color: colors.text }]}>{selectedTask?.title}</Text>
                 {selectedTask?.course ? (
-                  <Text style={styles.detailCourse}>{selectedTask.course}</Text>
+                  <Text style={[styles.detailCourse, { color: colors.textSecondary }]}>{selectedTask.course}</Text>
                 ) : null}
-                <View style={styles.divider} />
+                <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
 
                 {/* Due Date */}
                 <View style={styles.detailRow}>
-                  <Ionicons name="calendar-outline" size={18} color="#222" />
-                  <Text style={styles.detailRowText}>{selectedTask?.date}</Text>
+                  <Ionicons name="calendar-outline" size={18} color={colors.text} />
+                  <Text style={[styles.detailRowText, { color: colors.text }]}>{selectedTask?.date}</Text>
                 </View>
 
                 {/* Due Time */}
                 {selectedTask?.time ? (
                   <View style={styles.detailRow}>
-                    <Ionicons name="time-outline" size={18} color="#222" />
-                    <Text style={styles.detailRowText}>{selectedTask.time}</Text>
+                    <Ionicons name="time-outline" size={18} color={colors.text} />
+                    <Text style={[styles.detailRowText, { color: colors.text }]}>{selectedTask.time}</Text>
                   </View>
                 ) : null}
 
                 {/* Reminder */}
                 <View style={styles.detailRow}>
-                  <Ionicons name="notifications-outline" size={18} color="#222" />
-                  <Text style={styles.detailRowText}>
+                  <Ionicons name="notifications-outline" size={18} color={colors.text} />
+                  <Text style={[styles.detailRowText, { color: colors.text }]}>
                     Reminder: {selectedTask?.reminder ? "On" : "Off"}
                   </Text>
                 </View>
 
                 {/* Notes box */}
-                <View style={styles.notesBox}>
-                  <Text style={styles.notesText}>
+                <View style={[styles.notesBox, { borderColor: colors.border, backgroundColor: colors.card }]}>
+                  <Text style={[styles.notesText, { color: colors.textMuted }]}>
                     {selectedTask?.notes || "Task notes"}
                   </Text>
                 </View>
@@ -519,15 +530,7 @@ const styles = StyleSheet.create({
   completedText: { textDecorationLine: "line-through", color: "#999" },
   taskCardCourse: { fontSize: 12, color: "#666", marginTop: 2 },
   taskCardDate: { fontSize: 12, color: BLUE, fontWeight: "500" },
-  // Placeholder cards shown when the list is empty
-  emptyCard: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    marginHorizontal: 16,
-    marginBottom: 10,
-    minHeight: 54,
-  },
+  emptyText: { textAlign: "center", color: "#999", fontSize: 14, marginTop: 20, marginBottom: 20 },
   // ── Modal styles ──────────────────────────────────────────────
   modalContainer: { flex: 1, backgroundColor: "#fff" },
   modalHeader: {

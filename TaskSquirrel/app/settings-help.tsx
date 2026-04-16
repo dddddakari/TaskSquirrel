@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../utils/theme-context";
 
 const BLUE = "#2c5aa0";
 
@@ -37,10 +38,11 @@ const FAQ = [
 
 export default function HelpSupportScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -49,23 +51,29 @@ export default function HelpSupportScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Frequently Asked Questions</Text>
 
         {FAQ.map((item, idx) => (
-          <View key={idx} style={styles.faqItem}>
-            <Text style={styles.question}>{item.q}</Text>
-            <Text style={styles.answer}>{item.a}</Text>
+          <View key={idx} style={[styles.faqItem, { borderBottomColor: colors.borderLighter }]}>
+            <Text style={[styles.question, { color: colors.text }]}>{item.q}</Text>
+            <Text style={[styles.answer, { color: colors.textSecondary }]}>{item.a}</Text>
           </View>
         ))}
 
         <View style={styles.contactSection}>
+<<<<<<< HEAD
           <Text style={styles.sectionTitle}>Contact Us</Text>
           <Text style={styles.description}>
             Have a question or found a bug? Reach out and we&apos;ll get back to you.
+=======
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Contact Us</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
+            Have a question or found a bug? Reach out and we'll get back to you.
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
           </Text>
 
           <TouchableOpacity
-            style={styles.contactRow}
+            style={[styles.contactRow, { borderBottomColor: colors.borderLighter }]}
             onPress={() => Linking.openURL("mailto:support@tasksquirrel.app")}
           >
             <Ionicons name="mail-outline" size={22} color={BLUE} />

@@ -6,7 +6,11 @@ import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
+<<<<<<< HEAD
 import { AuthProvider, useAuth } from "../utils/auth-context";
+=======
+import { ThemeProviderCustom } from "../utils/theme-context";
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 export const unstable_settings = {
   anchor: "(tabs)",
@@ -48,6 +52,7 @@ function RootLayoutNav() {
   }
 
   return (
+    <ThemeProviderCustom>
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
@@ -65,6 +70,7 @@ function RootLayoutNav() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </ThemeProviderCustom>
   );
 }
 

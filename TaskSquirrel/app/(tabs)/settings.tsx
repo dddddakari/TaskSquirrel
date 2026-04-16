@@ -11,7 +11,11 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+<<<<<<< HEAD
 import { useAuth } from "../../utils/auth-context";
+=======
+import { useTheme } from "../../utils/theme-context";
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
 // App-wide brand colour
 const BLUE = "#2c5aa0";
@@ -31,6 +35,7 @@ const settingsItems = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+<<<<<<< HEAD
   const { signOut } = useAuth();
 
   const handleSignOut = () => {
@@ -45,11 +50,14 @@ export default function SettingsScreen() {
       },
     ]);
   };
+=======
+  const { colors } = useTheme();
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
       {/* ── Blue header bar ─────────────────────────────────── */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <Text style={styles.headerText}>Settings</Text>
         <Ionicons name="person-circle-outline" size={28} color="#fff" />
       </View>
@@ -59,12 +67,12 @@ export default function SettingsScreen() {
         {settingsItems.map((item) => (
           <TouchableOpacity
             key={item.label}
-            style={styles.item}
+            style={[styles.item, { borderBottomColor: colors.borderLighter }]}
             onPress={() => router.push(item.route)}
           >
             <Ionicons name={item.icon} size={22} color={BLUE} />
-            <Text style={styles.itemLabel}>{item.label}</Text>
-            <Ionicons name="chevron-forward" size={18} color="#bbb" />
+            <Text style={[styles.itemLabel, { color: colors.text }]}>{item.label}</Text>
+            <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
           </TouchableOpacity>
         ))}
       </View>

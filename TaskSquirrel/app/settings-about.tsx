@@ -8,15 +8,17 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../utils/theme-context";
 
 const BLUE = "#2c5aa0";
 
 export default function AboutScreen() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      <View style={[styles.header, { backgroundColor: colors.headerBg }]}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -27,12 +29,12 @@ export default function AboutScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.logoSection}>
           <Ionicons name="school" size={60} color={BLUE} />
-          <Text style={styles.appName}>TaskSquirrel</Text>
-          <Text style={styles.version}>Version 1.0.0</Text>
+          <Text style={[styles.appName, { color: colors.text }]}>TaskSquirrel</Text>
+          <Text style={[styles.version, { color: colors.textMuted }]}>Version 1.0.0</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.description}>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             TaskSquirrel is a study planner built to help students stay
             organized. Track assignments, set due dates, and never miss a
             deadline.
@@ -40,23 +42,31 @@ export default function AboutScreen() {
         </View>
 
         <View style={styles.section}>
+<<<<<<< HEAD
           <Text style={styles.sectionTitle}>Built With</Text>
           <Text style={styles.techItem}>React Native & Expo</Text>
           <Text style={styles.techItem}>Expo Router</Text>
           <Text style={styles.techItem}>Firebase</Text>
           <Text style={styles.techItem}>TypeScript</Text>
+=======
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Built With</Text>
+          <Text style={[styles.techItem, { color: colors.textSecondary }]}>React Native & Expo</Text>
+          <Text style={[styles.techItem, { color: colors.textSecondary }]}>Expo Router</Text>
+          <Text style={[styles.techItem, { color: colors.textSecondary }]}>AsyncStorage</Text>
+          <Text style={[styles.techItem, { color: colors.textSecondary }]}>TypeScript</Text>
+>>>>>>> d9be1a604a82f71710f4add3f4f662b4786ee3ce
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Credits</Text>
-          <Text style={styles.description}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Credits</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             Icons by Ionicons. Calendar component by react-native-calendars.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Legal</Text>
-          <Text style={styles.description}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Legal</Text>
+          <Text style={[styles.description, { color: colors.textSecondary }]}>
             © 2026 TaskSquirrel. All rights reserved.
           </Text>
         </View>

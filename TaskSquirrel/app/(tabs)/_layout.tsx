@@ -16,21 +16,24 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { View, StyleSheet } from 'react-native';
+import { useTheme } from '../../utils/theme-context';
 
 // App-wide brand colour used for active tab tint and the add button
 const BLUE = '#2c5aa0';
 
 export default function TabLayout() {
+  const { colors } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,             // Each screen has its own header
         tabBarActiveTintColor: BLUE,    // Selected tab icon/label colour
-        tabBarInactiveTintColor: '#888',// Unselected tab colour
+        tabBarInactiveTintColor: colors.tabInactive,
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: colors.tabBg,
           borderTopWidth: 1,
-          borderTopColor: '#e0e0e0',
+          borderTopColor: colors.tabBorder,
           height: 62,
           paddingBottom: 6,
         },
